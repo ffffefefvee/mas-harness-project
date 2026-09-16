@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roundtable.local/schemas/claim-check.schema.json",
+  "title": "ClaimCheck",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "checkId", "claim", "classification", "verdict", "confidence", "sources", "costUsd", "checkedAt"],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "checkId": {"type": "string", "format": "uuid"},
+    "claim": {"type": "string", "minLength": 1, "maxLength": 2000},
+    "classification": {"enum": ["project_internal", "web_verifiable", "deterministic", "opinion", "prediction", "instruction", "unverifiable"]},
+    "risk": {"enum": ["high", "medium", "low"]},
+    "verdict": {"enum": ["supported", "contradicted", "mixed", "insufficient_evidence", "not_verifiable", "stale_or_time_sensitive"]},
+    "confidence": {"enum": ["high", "medium", "low", "unknown"]},
+    "summary": {"type": "string", "maxLength": 1200},
+    "sources": {"type": "array", "maxItems": 8, "items": {"type": "object", "additionalProperties": false, "required": ["url", "title", "accessedAt"], "properties": {"url": {"type": "string", "format": "uri"}, "title": {"type": "string"}, "publishedAt": {"type": ["string", "null"], "format": "date-time"}, "accessedAt": {"type": "string", "format": "date-time"}, "excerpt": {"type": "string", "maxLength": 2000}, "sourceClass": {"enum": ["primary", "authoritative", "secondary", "unknown"]}}}},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "costUsd": {"type": "number", "minimum": 0},
+    "checkedAt": {"type": "string", "format": "date-time"},
+    "expiresAt": {"type": ["string", "null"], "format": "date-time"}
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://roundtable.local/schemas/scan-run.schema.json",
+  "title": "ScanRun",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "scanId", "mode", "repositoryId", "baseCommit", "startedAt", "status", "analyzers", "coverage"],
+  "properties": {
+    "schemaVersion": {"const": "1.0"},
+    "scanId": {"type": "string", "format": "uuid"},
+    "mode": {"enum": ["watch", "diff", "full", "gate", "targeted"]},
+    "repositoryId": {"type": "string", "minLength": 1},
+    "baseCommit": {"type": "string", "minLength": 1},
+    "headCommit": {"type": ["string", "null"]},
+    "startedAt": {"type": "string", "format": "date-time"},
+    "finishedAt": {"type": ["string", "null"], "format": "date-time"},
+    "status": {"enum": ["queued", "running", "complete", "partial", "failed", "cancelled"]},
+    "analyzers": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["id", "version", "status"], "properties": {"id": {"type": "string"}, "version": {"type": "string"}, "status": {"enum": ["complete", "failed", "timed_out", "skipped", "cancelled"]}, "message": {"type": ["string", "null"]}}}},
+    "coverage": {"type": "object", "additionalProperties": false, "required": ["requestedFiles", "scannedFiles"], "properties": {"requestedFiles": {"type": "integer", "minimum": 0}, "scannedFiles": {"type": "integer", "minimum": 0}, "skippedFiles": {"type": "integer", "minimum": 0}}},
+    "summary": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}}
+  }
+}
