@@ -1,0 +1,8 @@
+[
+  {"id":"tiny-doc","text":"Correct a typo in a private draft comment.","publicSafe":true,"label":"direct","signals":{"impact":"low","irreversible":false,"securitySensitive":false,"multiDomain":false,"uncertain":false}},
+  {"id":"refactor-tests","text":"Refactor two modules and update the test suite; no public API change.","publicSafe":true,"label":"reviewed","signals":{"impact":"medium","irreversible":false,"securitySensitive":false,"multiDomain":true,"uncertain":false}},
+  {"id":"security-auth","text":"Change authentication and authorization checks across the application.","publicSafe":true,"label":"team","signals":{"impact":"high","irreversible":false,"securitySensitive":true,"multiDomain":true,"uncertain":true}},
+  {"id":"db-migration","text":"Perform an irreversible production database migration.","publicSafe":true,"label":"team","signals":{"impact":"high","irreversible":true,"securitySensitive":false,"multiDomain":true,"uncertain":false}},
+  {"id":"uncertain-bug","text":"Investigate an intermittent error with unclear reproduction.","publicSafe":true,"label":"reviewed","signals":{"impact":"low","irreversible":false,"securitySensitive":false,"multiDomain":false,"uncertain":true}},
+  {"id":"ru-contract","text":"Изменить проверку договора API в двух модулях; требуется независимая проверка.","publicSafe":true,"label":"reviewed","signals":{"impact":"medium","irreversible":false,"securitySensitive":false,"multiDomain":true,"uncertain":false}}
+]
