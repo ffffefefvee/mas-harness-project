@@ -1,0 +1,32 @@
+{
+  "name": "dsh-roundtable-beta",
+  "version": "0.0.1",
+  "description": "DeepSeek Harness feasibility plugin for agent-independent code health scanning",
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./claim-critic": "./lib/claim-critic.js"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "lib/*.js",
+    "BETA_README.md"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "3.18.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

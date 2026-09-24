@@ -1,0 +1,9 @@
+- insert:
+    - id: roundtable-code-health
+      name: dsh-roundtable-beta
+      config:
+        root: !!js process.env.ROUND_TABLE_WORKSPACE ?? process.cwd()
+        ledgerPath: '.roundtable/findings.json'
+        debounceMs: 250
+        maxFileBytes: 1000000
+        watch: true
