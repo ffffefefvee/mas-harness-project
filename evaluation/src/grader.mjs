@@ -17,6 +17,16 @@ export const ACCEPTANCE_DIR = 'acceptance'
 const OUTPUT_LIMIT = 64 * 1024
 const permissionSupported = process.allowedNodeEnvironmentFlags.has('--permission')
 
+// `process.allowedNodeEnvironmentFlags` lists only NODE_OPTIONS-eligible flags, and the test
+// isolation flag is not one on Node 22.19 although the CLI accepts it (renamed from
+// --experimental-test-isolation in Node 23.6). Pick it by version instead of by that set.
+function testIsolationFlag() {
+  const [major, minor] = process.versions.node.split('.').map(Number)
+  if (major > 23 || (major === 23 && minor >= 6)) return '--test-isolation=none'
+  if (major > 22 || (major === 22 && minor >= 8)) return '--experimental-test-isolation=none'
+  return undefined
+}
+
 function minimalEnvironment() {
   const keep = ['PATH', 'Path', 'SystemRoot', 'SYSTEMROOT', 'TEMP', 'TMP', 'TMPDIR', 'HOME', 'USERPROFILE', 'LANG']
   const env = { NODE_ENV: 'test', NO_COLOR: '1' }
@@ -29,8 +39,10 @@ function runTests(workDir, files, timeoutMs) {
     // `node --test` runs each file in a child process; `--test-isolation=none` keeps the tests in
     // this one permission-restricted process instead of needing --allow-child-process.
     const args = []
-    if (permissionSupported) args.push('--permission', `--allow-fs-read=${workDir}`, `--allow-fs-write=${workDir}`)
-    if (process.allowedNodeEnvironmentFlags.has('--test-isolation')) args.push('--test-isolation=none')
+    const isolation = testIsolationFlag()
+    // Without in-process isolation the runner must spawn children, which --permission forbids.
+    if (permissionSupported && isolation) args.push('--permission', `--allow-fs-read=${workDir}`, `--allow-fs-write=${workDir}`)
+    if (isolation) args.push(isolation)
     args.push('--test', '--test-reporter=tap', ...files)
     const started = performance.now()
     const child = spawn(process.execPath, args, { cwd: workDir, env: minimalEnvironment(), stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true })

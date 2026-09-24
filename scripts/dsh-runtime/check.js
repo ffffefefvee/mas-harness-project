@@ -288,9 +288,11 @@ class DshProcess {
 // ---------------------------------------------------------------- scenarios
 
 const results = []
-function record(id, title, checks, metrics = {}, notes = []) {
+// A scenario whose precondition cannot be established on this host is `inconclusive`: it is
+// reported as such, never counted as a pass, and does not fail the run by itself.
+function record(id, title, checks, metrics = {}, notes = [], { inconclusive = false } = {}) {
   const failed = checks.filter(check => !check.ok)
-  const status = failed.length ? 'fail' : 'pass'
+  const status = inconclusive ? 'inconclusive' : failed.length ? 'fail' : 'pass'
   results.push({ id, title, status, checks, metrics, notes })
   console.log(`\n[${status.toUpperCase()}] ${id}: ${title}`)
   for (const check of checks) console.log(`  ${check.ok ? 'ok  ' : 'FAIL'} ${check.name}${check.detail === undefined ? '' : ` — ${JSON.stringify(check.detail)}`}`)
@@ -613,6 +615,7 @@ function makeUnreadable(path) {
 async function scenarioPartialCoverage() {
   const checks = []
   const notes = []
+  let inconclusive = false
   const root = seedWorkspace('partial', { 'src/locked.js': 'try { lockedWork() } catch (error) {}\n' })
   writeUserPatch(pluginConfigPatch(root))
   const dsh = new DshProcess('partial', { root }).start()
@@ -622,23 +625,39 @@ async function scenarioPartialCoverage() {
     const lockedBefore = readLedger(root).findings?.filter(item => item.path === 'src/locked.js') ?? []
     checks.push(check('baseline: finding in src/locked.js recorded', first && lockedBefore.length === 1))
     restore = makeUnreadable(join(root, 'src', 'locked.js'))
-    if (!restore) {
-      notes.push('could not make a file unreadable on this host (root user or icacls failure); scenario inconclusive')
-      checks.push(check('file made unreadable by the OS', false))
+    let unreadable = false
+    if (restore) {
+      try {
+        readFileSync(join(root, 'src', 'locked.js'))
+      } catch {
+        unreadable = true
+      }
+    }
+    if (!unreadable) {
+      // Elevated CI accounts (root, Windows admin with backup privilege) can still read the file:
+      // the precondition is absent, so report inconclusive rather than pass or a plugin failure.
+      notes.push('could not make a file unreadable for this account (root/admin or ACL ignored); scenario inconclusive, not evidence either way')
+      checks.push(check('file made unreadable by the OS (precondition)', false, restore ? 'readable despite deny' : 'deny not applied'))
+      inconclusive = true
       return
     }
     let since = Date.now()
     writeFileSync(join(root, 'src', 'trigger.js'), 'export const t = 1\n')
     await dsh.nextScan(since)
     since = Date.now()
-    // A directory rename forces a full scan, which must meet the unreadable file.
+    // Touch the locked file's directory so the next scan (full on Windows/macOS directory events,
+    // targeted per file on Linux) meets the unreadable file; either mode must record the failure.
     renameSync(join(root, 'src'), join(root, 'src-moved'))
     renameSync(join(root, 'src-moved'), join(root, 'src'))
-    const full = await dsh.waitFor(() => dsh.scans(since).find(line => scanMode(line) === 'full'), 15_000)
+    const covering = await dsh.waitFor(() => {
+      const current = readLedger(root)
+      return current.coverage?.failedFiles?.some(item => item.path === 'src/locked.js') ? current : undefined
+    }, 15_000)
     await sleep(800)
+    const full = dsh.scans(since).at(-1)
     const ledger = readLedger(root)
     const locked = ledger.findings?.filter(item => item.path === 'src/locked.js') ?? []
-    checks.push(check('full scan after the file became unreadable ran', full, full?.text))
+    checks.push(check('a scan after the file became unreadable met it', covering, full?.text))
     checks.push(check('scan status is partial with the file in coverage.failedFiles', ledger.status === 'partial' && ledger.coverage?.failedFiles?.some(item => item.path === 'src/locked.js'), { status: ledger.status, failedFiles: ledger.coverage?.failedFiles }))
     checks.push(check('finding in the unreadable file stays open (not reported fixed)', locked.length === 1 && locked[0].status === 'open', locked.map(item => item.status)))
     checks.push(check('plugin report line announces partial coverage', full && /\[partial: /.test(full.text), full?.text))
@@ -656,7 +675,7 @@ async function scenarioPartialCoverage() {
   } finally {
     restore?.()
     await dsh.kill()
-    record('partial-coverage', 'OS-unreadable file yields partial coverage without false fixes', checks, {}, notes)
+    record('partial-coverage', 'OS-unreadable file yields partial coverage without false fixes', checks, {}, notes, { inconclusive })
   }
 }
 
@@ -738,7 +757,9 @@ writeUserPatch('[]\n')
 const summary = { environment, results, finishedAt: new Date().toISOString() }
 const resultPath = join(workDir, `results-${args.label || 'run'}.json`)
 writeFileSync(resultPath, `${JSON.stringify(summary, null, 2)}\n`)
-const failed = results.filter(result => result.status !== 'pass')
+const failed = results.filter(result => result.status === 'fail')
+const inconclusiveCount = results.filter(result => result.status === 'inconclusive').length
+const passedCount = results.filter(result => result.status === 'pass').length
 
 // In GitHub Actions, publish one annotation per scenario: annotations of public repositories
 // are readable through the REST API without authentication, unlike logs and artifacts.
@@ -748,10 +769,10 @@ if (process.env.GITHUB_ACTIONS === 'true') {
   for (const result of results) {
     const lines = result.checks.map(item => `${item.ok ? 'ok' : 'FAIL'} ${item.name}${item.detail === undefined ? '' : ` — ${JSON.stringify(item.detail).slice(0, 300)}`}`)
     if (Object.keys(result.metrics).length) lines.push(`metrics ${JSON.stringify(result.metrics).slice(0, 1500)}`)
-    const level = result.status === 'pass' ? 'notice' : 'error'
+    const level = result.status === 'pass' ? 'notice' : result.status === 'inconclusive' ? 'warning' : 'error'
     console.log(`::${level} title=${escape(`dsh-runtime ${platform} ${result.id} ${result.status}`)}::${escape(lines.join('\n'))}`)
   }
-  console.log(`::notice title=${escape(`dsh-runtime ${platform} summary`)}::${escape(`${results.length - failed.length}/${results.length} passed; env ${JSON.stringify(environment)}`)}`)
+  console.log(`::notice title=${escape(`dsh-runtime ${platform} summary`)}::${escape(`${passedCount}/${results.length} passed, ${inconclusiveCount} inconclusive; env ${JSON.stringify(environment)}`)}`)
 }
-console.log(`\n${results.length - failed.length}/${results.length} scenarios passed; results: ${resultPath}`)
+console.log(`\n${passedCount}/${results.length} scenarios passed, ${inconclusiveCount} inconclusive, ${failed.length} failed; results: ${resultPath}`)
 process.exitCode = failed.length ? 1 : 0
