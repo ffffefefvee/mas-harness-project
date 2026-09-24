@@ -1,0 +1,1299 @@
+{
+  "schemaVersion": "0.1",
+  "generatedAt": "2026-09-24T23:35:19.267Z",
+  "evidenceStatement": "Deterministic arms only: measurements of the corpus and deterministic checks, not of any model.",
+  "budget": {
+    "maxRounds": 3,
+    "maxCostUnits": 100,
+    "maxLatencyMs": 600000
+  },
+  "node": "v24.15.0",
+  "platform": "win32-x64",
+  "arms": {
+    "noop": {
+      "evidence": "baseline",
+      "tasks": 16,
+      "passed": 0,
+      "passRate": {
+        "k": 0,
+        "n": 16,
+        "estimate": 0,
+        "low": 0,
+        "high": 0.1936076807861733
+      },
+      "outcomes": {
+        "tests-failed": 16
+      },
+      "latencyMs": {
+        "n": 16,
+        "missing": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "costPerAccepted": {
+        "totalCost": 0,
+        "accepted": 0,
+        "tasks": 16,
+        "missingCost": 0,
+        "value": null
+      },
+      "modelCalls": 0,
+      "changedLinesMedian": 0
+    },
+    "deterministic": {
+      "evidence": "baseline",
+      "tasks": 16,
+      "passed": 0,
+      "passRate": {
+        "k": 0,
+        "n": 16,
+        "estimate": 0,
+        "low": 0,
+        "high": 0.1936076807861733
+      },
+      "outcomes": {
+        "tests-failed": 16
+      },
+      "latencyMs": {
+        "n": 16,
+        "missing": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "costPerAccepted": {
+        "totalCost": 0,
+        "accepted": 0,
+        "tasks": 16,
+        "missingCost": 0,
+        "value": null
+      },
+      "modelCalls": 0,
+      "changedLinesMedian": 0
+    },
+    "reference": {
+      "evidence": "baseline",
+      "tasks": 16,
+      "passed": 16,
+      "passRate": {
+        "k": 16,
+        "n": 16,
+        "estimate": 1,
+        "low": 0.8063923192138267,
+        "high": 1
+      },
+      "outcomes": {
+        "pass": 16
+      },
+      "latencyMs": {
+        "n": 16,
+        "missing": 0,
+        "p50": 0,
+        "p95": 1,
+        "max": 1
+      },
+      "costPerAccepted": {
+        "totalCost": 0,
+        "accepted": 16,
+        "tasks": 16,
+        "missingCost": 0,
+        "value": 0
+      },
+      "modelCalls": 0,
+      "changedLinesMedian": 14
+    }
+  },
+  "byClass": {
+    "ambiguous-spec": {
+      "noop": {
+        "passed": 0,
+        "tasks": 1
+      },
+      "deterministic": {
+        "passed": 0,
+        "tasks": 1
+      },
+      "reference": {
+        "passed": 1,
+        "tasks": 1
+      }
+    },
+    "easy": {
+      "noop": {
+        "passed": 0,
+        "tasks": 3
+      },
+      "deterministic": {
+        "passed": 0,
+        "tasks": 3
+      },
+      "reference": {
+        "passed": 3,
+        "tasks": 3
+      }
+    },
+    "medium": {
+      "noop": {
+        "passed": 0,
+        "tasks": 4
+      },
+      "deterministic": {
+        "passed": 0,
+        "tasks": 4
+      },
+      "reference": {
+        "passed": 4,
+        "tasks": 4
+      }
+    },
+    "multi-component": {
+      "noop": {
+        "passed": 0,
+        "tasks": 4
+      },
+      "deterministic": {
+        "passed": 0,
+        "tasks": 4
+      },
+      "reference": {
+        "passed": 4,
+        "tasks": 4
+      }
+    },
+    "security-sensitive": {
+      "noop": {
+        "passed": 0,
+        "tasks": 4
+      },
+      "deterministic": {
+        "passed": 0,
+        "tasks": 4
+      },
+      "reference": {
+        "passed": 4,
+        "tasks": 4
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "armA": "noop",
+      "armB": "deterministic",
+      "pairedTasks": 16,
+      "onlyAPassed": 0,
+      "onlyBPassed": 0,
+      "mcnemar": {
+        "b": 0,
+        "c": 0,
+        "discordant": 0,
+        "pValue": 1
+      },
+      "diffPassRate": {
+        "n": 16,
+        "estimate": 0,
+        "low": 0,
+        "high": 0,
+        "iterations": 10000,
+        "seed": 1
+      }
+    },
+    {
+      "armA": "deterministic",
+      "armB": "reference",
+      "pairedTasks": 16,
+      "onlyAPassed": 0,
+      "onlyBPassed": 16,
+      "mcnemar": {
+        "b": 0,
+        "c": 16,
+        "discordant": 16,
+        "pValue": 0.000030517578125000014
+      },
+      "diffPassRate": {
+        "n": 16,
+        "estimate": 1,
+        "low": 1,
+        "high": 1,
+        "iterations": 10000,
+        "seed": 1
+      }
+    }
+  ],
+  "rows": [
+    {
+      "taskId": "t01-slugify",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 108,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t01-slugify",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t01-slugify",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 7,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 84,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t02-parse-duration",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 82,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t02-parse-duration",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": [
+          {
+            "ruleId": "not-implemented-stub",
+            "path": "src/duration.mjs",
+            "line": 5
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t02-parse-duration",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 8,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t03-paginate",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 86,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t03-paginate",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t03-paginate",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 6,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 86,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t04-lru-recency",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t04-lru-recency",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t04-lru-recency",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 11,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t05-csv-parse",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 88,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t05-csv-parse",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 85,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t05-csv-parse",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 39,
+      "filesChanged": 1,
+      "latencyMs": 1,
+      "gradeMs": 93,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t06-retry-backoff",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t06-retry-backoff",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 91,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t06-retry-backoff",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 11,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 102,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t07-interval-merge",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t07-interval-merge",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 97,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": [
+          {
+            "ruleId": "not-implemented-stub",
+            "path": "src/intervals.mjs",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t07-interval-merge",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 13,
+      "filesChanged": 1,
+      "latencyMs": 1,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t08-cart-discount",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 91,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t08-cart-discount",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 98,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t08-cart-discount",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 14,
+      "filesChanged": 2,
+      "latencyMs": 1,
+      "gradeMs": 95,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t09-event-bus",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 86,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t09-event-bus",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t09-event-bus",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 17,
+      "filesChanged": 2,
+      "latencyMs": 1,
+      "gradeMs": 91,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t10-config-merge",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 93,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t10-config-merge",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 94,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t10-config-merge",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 27,
+      "filesChanged": 3,
+      "latencyMs": 1,
+      "gradeMs": 88,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t11-path-traversal",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t11-path-traversal",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 88,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t11-path-traversal",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 20,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 93,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t12-html-escape",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t12-html-escape",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 88,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t12-html-escape",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 14,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 84,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t13-token-compare",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 88,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t13-token-compare",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t13-token-compare",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 12,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t14-redact-logs",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t14-redact-logs",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t14-redact-logs",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 23,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 88,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t15-ambiguous-version-compare",
+      "taskClass": "ambiguous-spec",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 86,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t15-ambiguous-version-compare",
+      "taskClass": "ambiguous-spec",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": [
+          {
+            "ruleId": "not-implemented-stub",
+            "path": "src/semver.mjs",
+            "line": 2
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t15-ambiguous-version-compare",
+      "taskClass": "ambiguous-spec",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 33,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t16-rate-limiter",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "noop",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    },
+    {
+      "taskId": "t16-rate-limiter",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "deterministic",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 91,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null,
+      "trace": {
+        "findings": []
+      }
+    },
+    {
+      "taskId": "t16-rate-limiter",
+      "taskClass": "multi-component",
+      "minimumSafeMode": "reviewed",
+      "arm": "reference",
+      "evidence": "baseline",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 26,
+      "filesChanged": 2,
+      "latencyMs": 1,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": null
+    }
+  ]
+}

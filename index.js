@@ -1,8 +1,6 @@
 import { watch } from 'node:fs'
-import { resolve } from 'node:path'
 import Schema from '@deepseek-ai/schemastery'
-import { createScanScheduler } from './lib/schedule.js'
-import { isRelevantChange, scanWorkspace } from './lib/scanner.js'
+import { CodeHealthService, SCAN_EVENT, SERVICE_NAME } from './lib/service.js'
 
 export const name = 'roundtable-code-health'
 
@@ -21,38 +19,36 @@ export const Config = Schema.object({
 function report(result) {
   const open = result.findings.filter(finding => finding.status !== 'fixed')
   const newCount = open.filter(finding => finding.baselineStatus === 'new' || finding.baselineStatus === 'worsened').length
-  console.log(`${PREFIX} ${open.length} open findings (${newCount} new/regressed); ${result.coverage.scannedFiles} files scanned`)
+  const extra = result.status === 'partial'
+    ? ` [partial: ${result.coverage.failedFiles.length} failed, ${result.coverage.carriedFailures.length} carried]`
+    : ''
+  console.log(`${PREFIX} ${open.length} open findings (${newCount} new/regressed); ${result.coverage.scannedFiles} files scanned (${result.mode})${extra}`)
 }
 
-
 export function apply(ctx, config) {
+  const service = new CodeHealthService({
+    ...config,
+    onResult: result => {
+      report(result)
+      ctx.emit(SCAN_EVENT, { scanId: result.scanId, mode: result.mode, status: result.status, summary: result.summary })
+    },
+    onError: error => console.error(`${PREFIX} scan failed`, error),
+    onListenerError: error => console.error(`${PREFIX} scan listener failed`, error),
+  })
+
+  // `ctx.roundtableCodeHealth`: consumers declare `inject: ['roundtableCodeHealth']`.
+  // Registered through the fiber, so it is withdrawn automatically on unload/HMR.
+  ctx.provide(SERVICE_NAME, service.api())
+
   ctx.effect(() => {
-    const root = resolve(config.root)
-    let closed = false
-    let active = Promise.resolve()
-    let controller
-
-    const runScan = () => {
-      active = active.then(async () => {
-        if (closed) return
-        controller = new AbortController()
-        try {
-          report(await scanWorkspace({ ...config, signal: controller.signal }))
-        } catch (error) {
-          if (!(closed && controller.signal.aborted)) console.error(`${PREFIX} scan failed`, error)
-        } finally {
-          controller = undefined
-        }
-      })
-    }
-
-    const scheduler = createScanScheduler({ debounceMs: config.debounceMs, maxWaitMs: config.maxWaitMs, run: runScan })
-    scheduler.request()
-
+    service.start()
     let watcher
     if (config.watch) {
-      watcher = watch(root, { recursive: true }, (eventType, filename) => {
-        if (isRelevantChange(eventType, filename, { root, ledgerPath: config.ledgerPath })) scheduler.request()
+      // ROUNDTABLE_DEBUG_WATCH=1 logs every raw watch event and its scheduling decision.
+      const debugWatch = process.env.ROUNDTABLE_DEBUG_WATCH === '1'
+      watcher = watch(service.root, { recursive: true }, (eventType, filename) => {
+        const request = service.handleWatchEvent(eventType, filename)
+        if (debugWatch) console.log(`${PREFIX} watch ${eventType} ${JSON.stringify(filename)} -> ${request.kind}${request.path ? ` ${request.path}` : ''}`)
       })
       // An unhandled FSWatcher 'error' would crash the whole DSH host process.
       watcher.on('error', error => {
@@ -60,18 +56,14 @@ export function apply(ctx, config) {
         watcher.close()
       })
     }
-
     return async () => {
-      closed = true
-      scheduler.close()
       watcher?.close()
-      const cancelled = controller !== undefined
-      controller?.abort()
-      await active
+      const { cancelled } = await service.dispose()
       console.log(`${PREFIX} stopped${cancelled ? ' (active scan cancelled)' : ''}`)
     }
   }, 'roundtable code-health lifecycle')
 }
 
-export { scanWorkspace } from './lib/scanner.js'
+export { CodeHealthEngine, scanWorkspace } from './lib/scanner.js'
+export { CodeHealthService, SCAN_EVENT, SERVICE_NAME } from './lib/service.js'
 export { classifyClaim, claimCheckDecision } from './lib/claim-critic.js'

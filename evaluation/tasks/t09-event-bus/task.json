@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t09-event-bus",
+  "title": "Fix event bus unsubscription and once semantics",
+  "class": "multi-component",
+  "tags": ["bugfix", "events", "multi-file"],
+  "instruction": "Fix src/bus.mjs (EventBus) and src/once.mjs (once helper). on(event, handler) returns an unsubscribe function that removes exactly that registration; calling it twice is harmless. emit(event, payload) calls handlers in registration order with the payload, iterating over a snapshot so handlers that unsubscribe during emit do not cause others to be skipped; emit returns the number of handlers called. once(bus, event, handler) registers a handler that runs at most once and then unsubscribes itself; once returns its unsubscribe function too. The same function may be registered twice and then runs twice.",
+  "labels": {
+    "minimumSafeMode": "reviewed",
+    "impact": "medium",
+    "reversible": true,
+    "securitySensitive": false,
+    "acceptanceCriteria": [
+      "unsubscribe removes exactly one registration",
+      "emit iterates over a snapshot",
+      "once runs at most once",
+      "emit returns handler count"
+    ],
+    "materialDefectsInFixture": ["unsubscribe removes all copies", "mutating array during emit skips handlers", "once never unsubscribes"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}

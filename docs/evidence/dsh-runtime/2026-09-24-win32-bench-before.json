@@ -1,0 +1,26 @@
+﻿{
+  "node": "v24.15.0",
+  "platform": "win32-x64",
+  "repeat": 3,
+  "fullScan2000x64KB": {
+    "medianMs": 811,
+    "samplesMs": [
+      4149,
+      811,
+      799
+    ]
+  },
+  "incrementalOneFile": "not available (no CodeHealthEngine)",
+  "scanContentLocation": [
+    {
+      "matches": 2000,
+      "bytes": 358000,
+      "medianMs": 47
+    },
+    {
+      "matches": 8000,
+      "bytes": 1432000,
+      "medianMs": 716
+    }
+  ]
+}

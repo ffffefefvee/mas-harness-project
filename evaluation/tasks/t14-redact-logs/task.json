@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t14-redact-logs",
+  "title": "Redact secrets before logging",
+  "class": "security-sensitive",
+  "tags": ["security", "privacy", "logging"],
+  "instruction": "redact(value) in src/redact.mjs prepares data for logs. Return a deep copy in which the value of any property whose key, compared case-insensitively after removing '-' and '_', is one of password, secret, token, apikey, authorization, cookie, setcookie is replaced by '[REDACTED]', at any depth, inside arrays too. Additionally, in every string value replace 'Bearer <token>' (case-insensitive 'bearer', token of [A-Za-z0-9._~+/=-]+) with 'Bearer [REDACTED]'. Do not mutate the input. Handle circular references by replacing the repeated object with '[Circular]'. Non-plain values other than arrays and plain objects are returned as-is.",
+  "labels": {
+    "minimumSafeMode": "reviewed",
+    "impact": "high",
+    "reversible": true,
+    "securitySensitive": true,
+    "acceptanceCriteria": [
+      "sensitive keys redacted at any depth and in arrays",
+      "key matching ignores case, '-' and '_'",
+      "bearer tokens inside strings redacted",
+      "input not mutated",
+      "cycles handled"
+    ],
+    "materialDefectsInFixture": ["top-level only", "case-sensitive exact keys", "mutates input", "no bearer handling"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}

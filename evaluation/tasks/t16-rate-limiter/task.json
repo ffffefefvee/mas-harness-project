@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t16-rate-limiter",
+  "title": "Fix the token-bucket rate limiter and its middleware",
+  "class": "multi-component",
+  "tags": ["bugfix", "time", "multi-file", "security-adjacent"],
+  "instruction": "Fix src/bucket.mjs and src/middleware.mjs. createBucket({ capacity, refillPerSecond, now }) returns { take(cost = 1) } where take returns true and consumes tokens when enough are available, otherwise false without consuming. The bucket starts full, refills continuously at refillPerSecond (fractional tokens allowed), never exceeds capacity, and uses the injected now() in milliseconds; time going backwards must not add tokens. capacity and refillPerSecond must be positive finite numbers (else RangeError) and cost must be a positive finite number no greater than capacity (else RangeError). createLimiter({ capacity, refillPerSecond, now }) returns check(clientId) that keeps one independent bucket per clientId and returns { allowed, clientId }. clientId must be a non-empty string, otherwise throw TypeError (so a missing id cannot share an anonymous bucket).",
+  "labels": {
+    "minimumSafeMode": "reviewed",
+    "impact": "medium",
+    "reversible": true,
+    "securitySensitive": true,
+    "acceptanceCriteria": [
+      "starts full, refills continuously, capped at capacity",
+      "failed take does not consume",
+      "clock going backwards adds no tokens",
+      "independent bucket per client",
+      "invalid ids and parameters rejected"
+    ],
+    "materialDefectsInFixture": ["refill uncapped", "failed take consumes", "backwards clock adds tokens", "single shared bucket", "missing id accepted"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}

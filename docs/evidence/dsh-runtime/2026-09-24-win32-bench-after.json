@@ -1,0 +1,33 @@
+﻿{
+  "node": "v24.15.0",
+  "platform": "win32-x64",
+  "repeat": 3,
+  "fullScan2000x64KB": {
+    "medianMs": 783,
+    "samplesMs": [
+      4050,
+      783,
+      770
+    ]
+  },
+  "incrementalOneFile": {
+    "medianMs": 4,
+    "samplesMs": [
+      5,
+      4,
+      3
+    ]
+  },
+  "scanContentLocation": [
+    {
+      "matches": 2000,
+      "bytes": 358000,
+      "medianMs": 3
+    },
+    {
+      "matches": 8000,
+      "bytes": 1432000,
+      "medianMs": 7
+    }
+  ]
+}

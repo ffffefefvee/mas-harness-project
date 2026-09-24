@@ -1,5 +1,18 @@
 # DeepSeek Harness runtime verification — feasibility plugin
 
+> **Stage 0 slice (2026-09-24, later run, label `stage0-win32`).** Added scenarios `service`
+> (`roundtableCodeHealth` Cordis service consumed via `inject`, API, `roundtable/code-health/scan` event,
+> in-flight `requestScan` rejected with `ROUNDTABLE_STOPPED` on unload, restart on re-enable) and
+> `partial-coverage` (OS-unreadable file via ACL deny → `status: partial`, `failedFiles: [{path, code: EPERM}]`,
+> finding stays `open`, cleared after access is restored); `lifecycle` now also asserts that a file change
+> triggers a **targeted** one-file scan. Result: 8/9 scenarios passed in the full run; `custom-ledger-path`
+> failed once with one unexpected full scan during the idle window, and passed 3/3 when run alone and 2/2
+> after `lifecycle`. Cause not yet identified (flaky, see `docs/evidence/dsh-runtime/2026-09-24-win32-stage0.json`).
+> Scanner micro-benchmark (`scripts/bench-scanner.js`, Windows, warm cache, median of 3): full scan
+> 2000×64 KB 811 → 783 ms; targeted one-file scan in the same workspace 4 ms (not available before);
+> location lookup for 8000 matches in 1.4 MB 716 → 7 ms.
+
+
 **Date:** 2026-09-24
 **Status:** Harness feasibility gate **passed on Windows only**; Linux and macOS not executed.
 **Evidence:** `docs/evidence/dsh-runtime/*.json` (machine-readable, local paths replaced by `<HOME>`).

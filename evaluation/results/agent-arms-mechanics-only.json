@@ -1,0 +1,818 @@
+{
+  "schemaVersion": "0.1",
+  "generatedAt": "2026-09-24T23:35:21.058Z",
+  "evidenceStatement": "This report contains scripted arms: mechanics only, not quality evidence. Only noop/reference/deterministic rows are measurements.",
+  "budget": {
+    "maxRounds": 3,
+    "maxCostUnits": 50,
+    "maxLatencyMs": 600000
+  },
+  "node": "v24.15.0",
+  "platform": "win32-x64",
+  "arms": {
+    "scripted-direct": {
+      "evidence": "mechanics-only",
+      "warning": "mechanics only, not quality evidence",
+      "tasks": 6,
+      "passed": 1,
+      "passRate": {
+        "k": 1,
+        "n": 6,
+        "estimate": 0.16666666666666666,
+        "low": 0.030053369713914257,
+        "high": 0.563502822476671
+      },
+      "outcomes": {
+        "tests-failed": 5,
+        "pass": 1
+      },
+      "latencyMs": {
+        "n": 6,
+        "missing": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "costPerAccepted": {
+        "totalCost": 19,
+        "accepted": 1,
+        "tasks": 6,
+        "missingCost": 0,
+        "value": 19
+      },
+      "modelCalls": 5,
+      "changedLinesMedian": 3
+    },
+    "scripted-reviewed": {
+      "evidence": "mechanics-only",
+      "warning": "mechanics only, not quality evidence",
+      "tasks": 6,
+      "passed": 2,
+      "passRate": {
+        "k": 2,
+        "n": 6,
+        "estimate": 0.3333333333333333,
+        "low": 0.0967714110145852,
+        "high": 0.7000066850807075
+      },
+      "outcomes": {
+        "tests-failed": 4,
+        "pass": 2
+      },
+      "latencyMs": {
+        "n": 6,
+        "missing": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "costPerAccepted": {
+        "totalCost": 40,
+        "accepted": 2,
+        "tasks": 6,
+        "missingCost": 0,
+        "value": 20
+      },
+      "modelCalls": 14,
+      "changedLinesMedian": 4
+    },
+    "scripted-team": {
+      "evidence": "mechanics-only",
+      "warning": "mechanics only, not quality evidence",
+      "tasks": 6,
+      "passed": 1,
+      "passRate": {
+        "k": 1,
+        "n": 6,
+        "estimate": 0.16666666666666666,
+        "low": 0.030053369713914257,
+        "high": 0.563502822476671
+      },
+      "outcomes": {
+        "tests-failed": 5,
+        "pass": 1
+      },
+      "latencyMs": {
+        "n": 6,
+        "missing": 0,
+        "p50": 0,
+        "p95": 0,
+        "max": 0
+      },
+      "costPerAccepted": {
+        "totalCost": 17,
+        "accepted": 1,
+        "tasks": 6,
+        "missingCost": 0,
+        "value": 17
+      },
+      "modelCalls": 5,
+      "changedLinesMedian": 0
+    }
+  },
+  "byClass": {
+    "easy": {
+      "scripted-direct": {
+        "passed": 0,
+        "tasks": 2
+      },
+      "scripted-reviewed": {
+        "passed": 1,
+        "tasks": 2
+      },
+      "scripted-team": {
+        "passed": 0,
+        "tasks": 2
+      }
+    },
+    "medium": {
+      "scripted-direct": {
+        "passed": 0,
+        "tasks": 3
+      },
+      "scripted-reviewed": {
+        "passed": 0,
+        "tasks": 3
+      },
+      "scripted-team": {
+        "passed": 1,
+        "tasks": 3
+      }
+    },
+    "security-sensitive": {
+      "scripted-direct": {
+        "passed": 1,
+        "tasks": 1
+      },
+      "scripted-reviewed": {
+        "passed": 1,
+        "tasks": 1
+      },
+      "scripted-team": {
+        "passed": 0,
+        "tasks": 1
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "armA": "scripted-direct",
+      "armB": "scripted-reviewed",
+      "pairedTasks": 6,
+      "onlyAPassed": 0,
+      "onlyBPassed": 1,
+      "mcnemar": {
+        "b": 0,
+        "c": 1,
+        "discordant": 1,
+        "pValue": 1
+      },
+      "diffPassRate": {
+        "n": 6,
+        "estimate": 0.16666666666666666,
+        "low": 0,
+        "high": 0.5,
+        "iterations": 10000,
+        "seed": 1
+      },
+      "warning": "mechanics only, not quality evidence"
+    },
+    {
+      "armA": "scripted-reviewed",
+      "armB": "scripted-team",
+      "pairedTasks": 6,
+      "onlyAPassed": 2,
+      "onlyBPassed": 1,
+      "mcnemar": {
+        "b": 2,
+        "c": 1,
+        "discordant": 3,
+        "pValue": 1
+      },
+      "diffPassRate": {
+        "n": 6,
+        "estimate": -0.16666666666666666,
+        "low": -0.6666666666666666,
+        "high": 0.3333333333333333,
+        "iterations": 10000,
+        "seed": 1
+      },
+      "warning": "mechanics only, not quality evidence"
+    }
+  ],
+  "rows": [
+    {
+      "taskId": "t01-slugify",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-direct",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 2,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 111,
+      "usage": {
+        "modelCalls": 1,
+        "inputTokens": 800,
+        "outputTokens": 300,
+        "costUnits": 3
+      },
+      "transcriptRef": "scripted:t01-slugify:direct",
+      "trace": {
+        "mode": "direct",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 3
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t01-slugify",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-reviewed",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 2,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 2,
+        "inputTokens": 1600,
+        "outputTokens": 600,
+        "costUnits": 5
+      },
+      "transcriptRef": "scripted:t01-slugify:reviewed",
+      "trace": {
+        "mode": "reviewed",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 3
+          },
+          {
+            "role": "reviewer",
+            "round": 0,
+            "verdict": "approve",
+            "costUnits": 2
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t01-slugify",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-team",
+      "evidence": "mechanics-only",
+      "status": "refused",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": "scripted:t01-slugify:team",
+      "trace": {
+        "mode": "team",
+        "calls": [],
+        "stop": "no scripted planner response"
+      }
+    },
+    {
+      "taskId": "t03-paginate",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-direct",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 4,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 90,
+      "usage": {
+        "modelCalls": 1,
+        "inputTokens": 800,
+        "outputTokens": 300,
+        "costUnits": 4
+      },
+      "transcriptRef": "scripted:t03-paginate:direct",
+      "trace": {
+        "mode": "direct",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 4
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t03-paginate",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-reviewed",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 6,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 4,
+        "inputTokens": 3200,
+        "outputTokens": 1200,
+        "costUnits": 12
+      },
+      "transcriptRef": "scripted:t03-paginate:reviewed",
+      "trace": {
+        "mode": "reviewed",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 4
+          },
+          {
+            "role": "reviewer",
+            "round": 0,
+            "verdict": "request-changes",
+            "costUnits": 2
+          },
+          {
+            "role": "worker",
+            "round": 1,
+            "verdict": null,
+            "costUnits": 4
+          },
+          {
+            "role": "reviewer",
+            "round": 1,
+            "verdict": "approve",
+            "costUnits": 2
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t03-paginate",
+      "taskClass": "easy",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-team",
+      "evidence": "mechanics-only",
+      "status": "refused",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 89,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": "scripted:t03-paginate:team",
+      "trace": {
+        "mode": "team",
+        "calls": [],
+        "stop": "no scripted planner response"
+      }
+    },
+    {
+      "taskId": "t05-csv-parse",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-direct",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 92,
+      "usage": {
+        "modelCalls": 1,
+        "inputTokens": 800,
+        "outputTokens": 300,
+        "costUnits": 3
+      },
+      "transcriptRef": "scripted:t05-csv-parse:direct",
+      "trace": {
+        "mode": "direct",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 3
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t05-csv-parse",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-reviewed",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 87,
+      "usage": {
+        "modelCalls": 4,
+        "inputTokens": 3200,
+        "outputTokens": 1200,
+        "costUnits": 10
+      },
+      "transcriptRef": "scripted:t05-csv-parse:reviewed",
+      "trace": {
+        "mode": "reviewed",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 3
+          },
+          {
+            "role": "reviewer",
+            "round": 0,
+            "verdict": "request-changes",
+            "costUnits": 2
+          },
+          {
+            "role": "worker",
+            "round": 1,
+            "verdict": null,
+            "costUnits": 3
+          },
+          {
+            "role": "reviewer",
+            "round": 1,
+            "verdict": "request-changes",
+            "costUnits": 2
+          }
+        ],
+        "stop": "correction limit reached; latest patch submitted with unresolved review"
+      }
+    },
+    {
+      "taskId": "t05-csv-parse",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-team",
+      "evidence": "mechanics-only",
+      "status": "refused",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 104,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": "scripted:t05-csv-parse:team",
+      "trace": {
+        "mode": "team",
+        "calls": [],
+        "stop": "no scripted planner response"
+      }
+    },
+    {
+      "taskId": "t06-retry-backoff",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-direct",
+      "evidence": "mechanics-only",
+      "status": "budget-exhausted",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 92,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": "scripted:t06-retry-backoff:direct",
+      "trace": {
+        "mode": "direct",
+        "calls": [],
+        "stop": "cost budget exhausted before worker round 0"
+      }
+    },
+    {
+      "taskId": "t06-retry-backoff",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-reviewed",
+      "evidence": "mechanics-only",
+      "status": "budget-exhausted",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 91,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": "scripted:t06-retry-backoff:reviewed",
+      "trace": {
+        "mode": "reviewed",
+        "calls": [],
+        "stop": "cost budget exhausted before worker round 0"
+      }
+    },
+    {
+      "taskId": "t06-retry-backoff",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-team",
+      "evidence": "mechanics-only",
+      "status": "refused",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 91,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": "scripted:t06-retry-backoff:team",
+      "trace": {
+        "mode": "team",
+        "calls": [],
+        "stop": "no scripted planner response"
+      }
+    },
+    {
+      "taskId": "t07-interval-merge",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-direct",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 8,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 96,
+      "usage": {
+        "modelCalls": 1,
+        "inputTokens": 800,
+        "outputTokens": 300,
+        "costUnits": 4
+      },
+      "transcriptRef": "scripted:t07-interval-merge:direct",
+      "trace": {
+        "mode": "direct",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 4
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t07-interval-merge",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-reviewed",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 8,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 96,
+      "usage": {
+        "modelCalls": 2,
+        "inputTokens": 1600,
+        "outputTokens": 600,
+        "costUnits": 6
+      },
+      "transcriptRef": "scripted:t07-interval-merge:reviewed",
+      "trace": {
+        "mode": "reviewed",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 4
+          },
+          {
+            "role": "reviewer",
+            "round": 0,
+            "verdict": "approve",
+            "costUnits": 2
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t07-interval-merge",
+      "taskClass": "medium",
+      "minimumSafeMode": "direct",
+      "arm": "scripted-team",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 13,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 95,
+      "usage": {
+        "modelCalls": 5,
+        "inputTokens": 4000,
+        "outputTokens": 1500,
+        "costUnits": 17
+      },
+      "transcriptRef": "scripted:t07-interval-merge:team",
+      "trace": {
+        "mode": "team",
+        "calls": [
+          {
+            "role": "planner",
+            "round": 0,
+            "verdict": "plan",
+            "costUnits": 3
+          },
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 4
+          },
+          {
+            "role": "challenger",
+            "round": 0,
+            "verdict": "request-changes",
+            "costUnits": 3
+          },
+          {
+            "role": "worker",
+            "round": 1,
+            "verdict": null,
+            "costUnits": 4
+          },
+          {
+            "role": "challenger",
+            "round": 1,
+            "verdict": "approve",
+            "costUnits": 3
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t12-html-escape",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "scripted-direct",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 14,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 93,
+      "usage": {
+        "modelCalls": 1,
+        "inputTokens": 800,
+        "outputTokens": 300,
+        "costUnits": 5
+      },
+      "transcriptRef": "scripted:t12-html-escape:direct",
+      "trace": {
+        "mode": "direct",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 5
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t12-html-escape",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "scripted-reviewed",
+      "evidence": "mechanics-only",
+      "status": "completed",
+      "pass": true,
+      "outcome": "pass",
+      "changedLines": 14,
+      "filesChanged": 1,
+      "latencyMs": 0,
+      "gradeMs": 94,
+      "usage": {
+        "modelCalls": 2,
+        "inputTokens": 1600,
+        "outputTokens": 600,
+        "costUnits": 7
+      },
+      "transcriptRef": "scripted:t12-html-escape:reviewed",
+      "trace": {
+        "mode": "reviewed",
+        "calls": [
+          {
+            "role": "worker",
+            "round": 0,
+            "verdict": null,
+            "costUnits": 5
+          },
+          {
+            "role": "reviewer",
+            "round": 0,
+            "verdict": "approve",
+            "costUnits": 2
+          }
+        ]
+      }
+    },
+    {
+      "taskId": "t12-html-escape",
+      "taskClass": "security-sensitive",
+      "minimumSafeMode": "reviewed",
+      "arm": "scripted-team",
+      "evidence": "mechanics-only",
+      "status": "refused",
+      "pass": false,
+      "outcome": "tests-failed",
+      "changedLines": 0,
+      "filesChanged": 0,
+      "latencyMs": 0,
+      "gradeMs": 93,
+      "usage": {
+        "modelCalls": 0,
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "costUnits": 0
+      },
+      "transcriptRef": "scripted:t12-html-escape:team",
+      "trace": {
+        "mode": "team",
+        "calls": [],
+        "stop": "no scripted planner response"
+      }
+    }
+  ]
+}

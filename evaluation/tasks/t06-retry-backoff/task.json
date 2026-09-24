@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t06-retry-backoff",
+  "title": "Fix retry attempt accounting and backoff",
+  "class": "medium",
+  "tags": ["bugfix", "async"],
+  "instruction": "Fix retry(operation, options) in src/retry.mjs. options = { attempts, baseDelayMs, sleep }. attempts is the total number of calls including the first and must be a positive integer (else RangeError). Before retry number k (k = 1, 2, ...) await sleep(baseDelayMs * 2 ** (k - 1)). No sleep happens after the final failed attempt. operation receives the 1-based attempt number. On final failure throw an AggregateError whose errors array contains every thrown error in order. Resolve with the first successful result.",
+  "labels": {
+    "minimumSafeMode": "direct",
+    "impact": "medium",
+    "reversible": true,
+    "securitySensitive": false,
+    "acceptanceCriteria": [
+      "exactly `attempts` calls",
+      "exponential delays between attempts only",
+      "AggregateError with all errors",
+      "attempt number passed to operation"
+    ],
+    "materialDefectsInFixture": ["one extra attempt", "constant delay", "sleep after last attempt", "only last error kept"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}

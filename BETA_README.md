@@ -47,7 +47,9 @@ Set `ROUND_TABLE_WORKSPACE` to the repository that should be scanned. Do not poi
 
 - Runtime-verified only on Windows 10 x64 with `@deepseek-ai/dsh@0.1.6-alpha.1` (`docs/RUNTIME_VERIFICATION.md`); Linux and macOS are unverified.
 - Install from a packed tarball (`npm pack`) or registry; a `link:` install of a checkout without its own `node_modules` fails to import `@deepseek-ai/schemastery`.
-- File events currently coalesce into a full text scan (debounce `debounceMs`, bounded by `maxWaitMs`); production needs changed-file/range scheduling.
+- File events trigger targeted rescans of the changed paths (debounce `debounceMs`, bounded by `maxWaitMs`); full scans run at start, on unattributed events, and on directory renames. Range-level scheduling is not implemented.
+- Other plugins can consume `ctx.roundtableCodeHealth` (`inject: ['roundtableCodeHealth']`): `snapshot()`, `status()`, `requestScan({ paths? })`, `onScan(listener)`. It has no authorization boundary yet.
+- Unreadable files make a scan `partial` (`coverage.failedFiles`); their findings keep their previous state instead of becoming `fixed`.
 - The ledger is JSON, not the planned transactional SQLite/WAL store.
 - Rules are regex heuristics, not AST analysis and not proof of AI authorship.
 - The Claim Critic has only a deterministic routing skeleton; no web provider or model is wired.

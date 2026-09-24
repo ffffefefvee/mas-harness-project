@@ -53,7 +53,11 @@ The only path for model calls. It applies provider allowlists, payload shaping, 
 
 ### CodeHealthService
 
-Supervised local worker for diagnostics. Production storage is planned as a transactional durable store; the current spike uses a JSON ledger and full text rescans.
+Supervised local worker for diagnostics.
+
+**Implemented (Stage 0 slice, `lib/scanner.js`, `lib/service.js`):** Cordis service `ctx.roundtableCodeHealth` (API version 1: `snapshot()`, `status()`, `requestScan({ paths? })`, `onScan(listener)`, plus the Cordis event `roundtable/code-health/scan`); full scan at start, on unattributed events and on extension-less renames, otherwise targeted rescans of changed paths; per-file failures recorded as `coverage.failedFiles` with status `partial`, and findings in unchecked files never marked `fixed`; cancellation of in-flight scans on unload; JSON ledger `schemaVersion 0.2`.
+
+**Planned:** transactional durable store, analyzer subprocess adapters, repository/commit identity (`repositoryId`, `baseCommit`), range-level scheduling, and a consumer-facing authorization boundary for `requestScan`.
 
 ### ClaimCritic
 
@@ -147,7 +151,7 @@ Use OpenTelemetry GenAI semantic conventions where stable and add Roundtable-spe
 | Planned component | Current evidence | Gap |
 |---|---|---|
 | Harness plugin lifecycle | `index.js`, `cordis.patch.yml`, `scripts/dsh-runtime/check.js` | Runtime-verified on Windows with DSH 0.1.6-alpha.1; Linux/macOS unverified |
-| CodeHealthService seed | `lib/scanner.js`, `lib/schedule.js`, analyzers, ledger/lifecycle tests | Full rescans, JSON store, regex-only seed rules, no formal service seam |
+| CodeHealthService seed | `lib/scanner.js`, `lib/service.js`, `lib/schedule.js`, analyzers, `test/stage0.test.js` | Runtime-verified service seam and targeted rescans on Windows; JSON store, regex-only seed rules, no commit identity |
 | Claim router seed | `lib/claim-critic.js` | No extraction, retrieval, evidence store, or model integration |
 | Routing experiment | `decision-routing/` | Synthetic data; no live Laya/Jev comparison |
 | Event and resilience prototypes | root Python modules | Not integrated with the JS plugin |

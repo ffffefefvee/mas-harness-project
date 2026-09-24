@@ -1,0 +1,27 @@
+[
+  { "id": "mc-01", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "positive", "expected": 3,
+    "source": "const a = 1\n<<<<<<< HEAD\nconst b = 2\n=======\nconst b = 3\n>>>>>>> feature/x\n", "note": "full conflict block, three marker lines" },
+  { "id": "mc-02", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "positive", "expected": 3, "eol": "crlf",
+    "source": "<<<<<<< ours\nx()\n=======\ny()\n>>>>>>> theirs\n", "note": "CRLF conflict block" },
+  { "id": "mc-03", "rule": "merge-conflict-marker", "path": "config/app.yml", "kind": "positive", "expected": 3,
+    "source": "port: 80\n<<<<<<< HEAD\nhost: a\n=======\nhost: b\n>>>>>>> main\n", "note": "YAML conflict" },
+  { "id": "mc-04", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "positive", "expected": 4,
+    "source": "<<<<<<< HEAD\na()\n||||||| base\nb()\n=======\nc()\n>>>>>>> topic\n", "note": "diff3 style: the base marker ||||||| is also a conflict marker" },
+  { "id": "mc-05", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "positive", "expected": 3,
+    "source": "  <<<<<<< HEAD\n  a()\n  =======\n  b()\n  >>>>>>> topic\n", "note": "indented markers (still unresolved)" },
+  { "id": "mc-06", "rule": "merge-conflict-marker", "path": "package.json", "kind": "positive", "expected": 3,
+    "source": "{\n<<<<<<< HEAD\n  \"version\": \"1.0.0\"\n=======\n  \"version\": \"1.1.0\"\n>>>>>>> release\n}\n", "note": "JSON conflict" },
+
+  { "id": "mc-n01", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "negative-twin", "expected": 0,
+    "source": "const sample = `\n<<<<<<< HEAD\nours\n=======\ntheirs\n>>>>>>> branch\n`\n", "note": "markers inside a template literal (test fixture for a merge tool)" },
+  { "id": "mc-n02", "rule": "merge-conflict-marker", "path": "docs/merging.md", "kind": "negative-twin", "expected": 0,
+    "source": "# Resolving conflicts\n\n```text\n<<<<<<< HEAD\nours\n=======\ntheirs\n>>>>>>> branch\n```\n", "note": "documented in Markdown; .md is not scanned by default, labelled for intent" },
+  { "id": "mc-n03", "rule": "merge-conflict-marker", "path": "src/a.py", "kind": "negative-twin", "expected": 0,
+    "source": "def banner():\n    return '''\n=======\nRESULTS\n=======\n'''\n", "note": "heading underline inside a Python string" },
+  { "id": "mc-n04", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "negative-twin", "expected": 0,
+    "source": "const separator = '======='\nconst arrow = '>>>>>>> next'\n", "note": "marker-like text inside quotes, not at line start" },
+  { "id": "mc-n05", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "negative-twin", "expected": 0,
+    "source": "// ======================================================\n// Section\n", "note": "comment rule line longer than 7" },
+  { "id": "mc-n06", "rule": "merge-conflict-marker", "path": "src/a.js", "kind": "negative-twin", "expected": 0,
+    "source": "if (a <<<<<<< b) {}\n", "note": "operator-like sequence mid-line" }
+]

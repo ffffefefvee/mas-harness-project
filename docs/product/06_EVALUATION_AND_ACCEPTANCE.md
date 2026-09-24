@@ -96,6 +96,13 @@ Team mode must outperform Reviewed on predeclared task classes after total cost 
 
 Requires documented supported Harness revision(s), migration/rollback, threat-model tests, reproducible installation, user documentation, telemetry/data controls, and no unresolved critical security defects.
 
+### Evaluation infrastructure status (2026-09-24)
+
+- **Implemented (offline):** `evaluation/` — 16 tasks with hidden acceptance tests and oracle solutions across `easy`, `medium`, `multi-component`, `security-sensitive`, `ambiguous-spec`; grader; arm contract; paired statistics; power analysis. No live arms.
+- **Measured:** deterministic analyzer precision 73% [61–83] and recall 79% [66–87] overall on an 81-case synthetic corpus (`docs/experiments/2026-09-24-code-health-baseline.md`); corpus validity (reference 16/16, empty patch 0/16).
+- **Mechanics only, not quality evidence:** scripted Direct/Reviewed/Team arms.
+- **Preregistered:** hypotheses, thresholds, sample size (≥ 170 test tasks for +10 pp), stop conditions — `docs/experiments/PREREGISTRATION.md`.
+
 ## 6. Statistical discipline
 
 - Freeze metrics and thresholds before test evaluation.

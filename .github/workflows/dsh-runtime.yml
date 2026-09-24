@@ -15,8 +15,8 @@ jobs:
   unit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
       - run: npm install --no-fund --no-audit
@@ -30,11 +30,12 @@ jobs:
         node: ['22.19.0', '24']
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
-    env:
-      DSH_PIN_DIR: ${{ github.workspace }}/../dsh-pin
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Pin directory outside the checkout
+        shell: bash
+        run: echo "DSH_PIN_DIR=${RUNNER_TEMP//\\//}/dsh-pin" >> "$GITHUB_ENV"
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
       - name: Install pinned DeepSeek Harness
@@ -53,7 +54,7 @@ jobs:
         run: node scripts/dsh-runtime/check.js --dsh-dir "$DSH_PIN_DIR" --work "$DSH_PIN_DIR/check" --label "${{ matrix.os }}-node${{ matrix.node }}"
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dsh-runtime-${{ matrix.os }}-node${{ matrix.node }}
           path: ${{ env.DSH_PIN_DIR }}/check/results-*.json

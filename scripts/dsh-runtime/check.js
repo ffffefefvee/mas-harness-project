@@ -44,8 +44,12 @@ const profile = 'rt-runtime-check'
 const profileDir = join(dshHome, 'profiles', profile)
 const userPatchPath = join(profileDir, 'cordis.patch.yml')
 const probeUrl = pathToFileURL(join(here, 'probe-plugin.js')).href
+const serviceProbeUrl = pathToFileURL(join(here, 'probe-service.js')).href
+const { LEDGER_SCHEMA_VERSION } = await import(pathToFileURL(join(repoRoot, 'lib', 'scanner.js')).href)
 const preloadUrl = pathToFileURL(join(here, 'preload.js')).href
 const REPORT = /^\[roundtable-code-health\] (\d+) open findings \((\d+) new\/regressed\); (\d+) files scanned/
+const scanMode = line => /files scanned \((full|targeted)\)/.exec(line.text)?.[1]
+const scannedCount = line => Number(REPORT.exec(line.text)?.[3])
 const only = args.only ? new Set(args.only.split(',')) : undefined
 const yamlPath = path => path.replaceAll('\\', '/')
 
@@ -130,7 +134,7 @@ function writeUserPatch(content) {
 // ---------------------------------------------------------------- DSH process
 
 class DshProcess {
-  constructor(name, { root }) {
+  constructor(name, { root, serviceProbe = false }) {
     this.name = name
     this.root = root
     this.dir = join(workDir, 'runs', name)
@@ -147,6 +151,16 @@ class DshProcess {
       `        logPath: '${yamlPath(this.probeLog)}'`,
       `        controlDir: '${yamlPath(join(this.dir, 'ctl'))}'`,
       '        intervalMs: 100',
+      ...(serviceProbe
+        ? [
+            '    - id: rt-service-probe',
+            `      name: '${serviceProbeUrl}'`,
+            '      config:',
+            `        logPath: '${yamlPath(this.probeLog)}'`,
+            `        controlDir: '${yamlPath(join(this.dir, 'ctl'))}'`,
+            '        intervalMs: 100',
+          ]
+        : []),
       '',
     ].join('\n')
     this.overlayPath = join(this.dir, 'overlay.yml')
@@ -162,6 +176,7 @@ class DshProcess {
         DSH_HOME: dshHome,
         ROUND_TABLE_WORKSPACE: this.root,
         DSH_TELEMETRY_DISABLED: '1',
+        ROUNDTABLE_DEBUG_WATCH: '1',
         RT_PROBE_LOG: this.probeLog,
         NODE_OPTIONS: `--import=${preloadUrl}`,
         PATH: pathWithBin,
@@ -342,11 +357,13 @@ async function scenarioLifecycle() {
     metrics.bootToFirstScanMs = first ? first.t - dsh.startedAt : undefined
     const ledger = readLedger(root)
     checks.push(check('initial scan reported', first, first?.text))
-    checks.push(check('ledger .roundtable/findings.json created with schemaVersion and 2 seeded findings', ledger.schemaVersion === '0.1' && ledger.findings?.length === 2, ledger.error ?? ledger.findings?.map(item => item.ruleId)))
+    checks.push(check('ledger .roundtable/findings.json created with schemaVersion and 2 seeded findings', ledger.schemaVersion === LEDGER_SCHEMA_VERSION && ledger.findings?.length === 2, ledger.error ?? { schemaVersion: ledger.schemaVersion, rules: ledger.findings?.map(item => item.ruleId) }))
+    checks.push(check('initial scan is a complete full scan', ledger.mode === 'full' && ledger.status === 'complete', { mode: ledger.mode, status: ledger.status }))
 
     let since = Date.now()
     await sleep(2_500)
-    checks.push(check('idle: ledger write does not retrigger a scan', dsh.scans(since).length === 0, dsh.scans(since).length))
+    const idleLines = dsh.lines.filter(line => line.t >= since - 500 && /roundtable/.test(line.text)).map(line => `${line.t - since}ms ${line.text}`)
+    checks.push(check('idle: ledger write does not retrigger a scan', dsh.scans(since).length === 0, dsh.scans(since).length === 0 ? 0 : idleLines))
 
     since = Date.now()
     writeFileSync(join(root, 'src', 'added.js'), '// @ts-ignore\nconst x = 1\n')
@@ -355,6 +372,8 @@ async function scenarioLifecycle() {
     await sleep(1_000)
     const afterChange = readLedger(root)
     checks.push(check('single file change triggers exactly one rescan', dsh.scans(since).length === 1, dsh.scans(since).length))
+    const changedScan = dsh.scans(since)[0]
+    checks.push(check('file change rescans only that file (targeted, 1 file)', changedScan && scanMode(changedScan) === 'targeted' && scannedCount(changedScan) === 1, changedScan?.text))
     checks.push(check('new finding recorded as baselineStatus=new', afterChange.findings?.some(item => item.ruleId === 'unexplained-ts-ignore' && item.baselineStatus === 'new')))
 
     since = Date.now()
@@ -415,7 +434,11 @@ async function scenarioLifecycle() {
     checks.push(check('HMR unload removes the plugin watcher (handle count drops)', cycles.every(item => item.disabledHandles < handlesEnabled), cycles.map(item => item.disabledHandles)))
     checks.push(check('no scans while the plugin is unloaded', cycles.every(item => item.scansWhileDisabled === 0), cycles.map(item => item.scansWhileDisabled)))
     checks.push(check('re-enable restarts scanning each cycle', cycles.every(item => item.reenabled)))
-    checks.push(check('5 unload/reload cycles leak no watcher handles', cycles.every(item => item.enabledHandles === handlesEnabled), { handlesEnabled, after: cycles.map(item => item.enabledHandles) }))
+    // Linux recursive fs.watch holds one inotify handle per directory, so the count legitimately
+    // changes when the scenario itself creates directories (node_modules/, .git/ above). A leak is
+    // growth across identical cycles, so compare cycles with each other, not with the first sample.
+    const enabledCounts = cycles.map(item => item.enabledHandles)
+    checks.push(check('5 unload/reload cycles leak no watcher handles (count stable across cycles)', enabledCounts.every(count => count === enabledCounts[0]) && enabledCounts[0] <= handlesEnabled + 2, { handlesEnabled, after: enabledCounts }))
 
     const shutdown = await dsh.requestExit()
     metrics.shutdown = shutdown
@@ -439,9 +462,10 @@ async function scenarioCustomLedgerPath() {
     checks.push(check('initial scan reported', first))
     const since = Date.now()
     await sleep(3_000)
-    const idleScans = dsh.scans(since).length
+    const idleScans = dsh.scans(since)
     const ledger = readLedger(root, 'reports/findings.json')
-    checks.push(check('custom ledgerPath: idle for 3 s causes no self-triggered rescans', idleScans === 0, idleScans))
+    const pluginLines = dsh.lines.filter(line => line.t >= since - 500 && /roundtable|dsh:/.test(line.text)).map(line => `${line.t - since}ms ${line.stream} ${line.text}`)
+    checks.push(check('custom ledgerPath: idle for 3 s causes no self-triggered rescans', idleScans.length === 0, idleScans.length === 0 ? 0 : pluginLines))
     checks.push(check('custom ledgerPath: the ledger file is not scanned as source', !ledger.findings?.some(item => item.path === 'reports/findings.json'), ledger.findings?.map(item => item.path)))
     await dsh.requestExit()
   } finally {
@@ -511,6 +535,131 @@ async function scenarioRootRemoved() {
   record('root-removed', 'watched workspace root renamed away while DSH runs', checks)
 }
 
+async function scenarioService() {
+  const checks = []
+  const metrics = {}
+  const root = seedWorkspace('service')
+  writeUserPatch(pluginConfigPatch(root))
+  const dsh = new DshProcess('service', { root, serviceProbe: true }).start()
+  const events = name => dsh.probe().filter(event => event.event === name)
+  try {
+    await dsh.nextScan(0, 30_000)
+    const available = await dsh.waitFor(() => events('service-available')[0], 10_000)
+    checks.push(check('consumer with inject: [roundtableCodeHealth] starts and sees the service', available, available && { version: available.version, methods: available.methods }))
+    checks.push(check('service API is frozen and exposes snapshot/status/requestScan/onScan', available?.frozen && ['onScan', 'requestScan', 'snapshot', 'status'].every(method => available.methods.includes(method))))
+
+    dsh.control('service-request')
+    const result = await dsh.waitFor(() => events('service-request-result')[0] ?? events('service-request-error')[0], 10_000)
+    metrics.requestResult = result
+    checks.push(check('requestScan({ paths }) runs a targeted scan and resolves with it', result?.event === 'service-request-result' && result.mode === 'targeted' && result.scannedFiles === 1, result))
+    checks.push(check('snapshot() returns the latest result', result?.snapshotScanId === true && result.snapshotFindings === 2, result))
+    const scanNotice = await dsh.waitFor(() => events('service-scan').find(event => event.summary.mode === 'targeted'), 5_000)
+    checks.push(check('onScan subscriber receives a count-only summary', scanNotice && !('findings' in scanNotice.summary), scanNotice?.summary))
+    const cordisEvent = await dsh.waitFor(() => events('cordis-event').find(event => event.payload.mode === 'targeted'), 5_000)
+    checks.push(check('Cordis event roundtable/code-health/scan is emitted', cordisEvent, cordisEvent?.payload))
+
+    dsh.control('service-invalid')
+    const invalid = await dsh.waitFor(() => events('service-invalid-rejected')[0] ?? events('service-invalid-accepted')[0], 5_000)
+    checks.push(check('requestScan rejects paths outside the workspace', invalid?.event === 'service-invalid-rejected', invalid))
+
+    for (let index = 0; index < 1500; index++) {
+      mkdirSync(join(root, 'bulk'), { recursive: true })
+      writeFileSync(join(root, 'bulk', `f${index}.js`), 'export const v = 1\n'.repeat(2000))
+    }
+    await sleep(1_500)
+    dsh.control('service-slow')
+    await dsh.waitFor(() => events('service-slow-sent')[0], 5_000)
+    await sleep(150)
+    const unloadAt = Date.now()
+    writeUserPatch(`${pluginConfigPatch(root)}  disabled: true\n`)
+    const stopped = await dsh.waitFor(() => events('service-probe-stop')[0], 15_000)
+    const slow = await dsh.waitFor(() => events('service-slow-error')[0] ?? events('service-slow-result')[0], 15_000)
+    metrics.unloadToConsumerStopMs = stopped ? stopped.t - unloadAt : undefined
+    metrics.slowRequest = slow
+    checks.push(check('unloading the provider disposes the dependent consumer', stopped))
+    checks.push(check('in-flight requestScan rejects with CodeHealthStoppedError on unload (not a hang)', slow?.event === 'service-slow-error' && slow.code === 'ROUNDTABLE_STOPPED', slow))
+
+    const restartAt = Date.now()
+    writeUserPatch(pluginConfigPatch(root))
+    const again = await dsh.waitFor(() => events('service-available').length >= 2, 15_000)
+    metrics.reloadToConsumerMs = again ? Date.now() - restartAt : undefined
+    checks.push(check('re-enabling the provider restarts the consumer with a fresh service', again))
+
+    const shutdown = await dsh.requestExit()
+    metrics.shutdown = shutdown
+    checks.push(check('clean shutdown with the service consumer loaded', shutdown.exitCode === 0 && shutdown.naturalDrain && !shutdown.forcedProcessExit, shutdown))
+  } finally {
+    await dsh.kill()
+  }
+  record('service', 'roundtableCodeHealth Cordis service: inject, API, events, unload', checks, metrics)
+}
+
+// Make one file unreadable with an OS mechanism: an ACL deny on Windows (icacls),
+// mode 000 on POSIX. Returns a restore function, or undefined when not possible
+// (e.g. running as root, where mode bits do not block reads).
+function makeUnreadable(path) {
+  if (process.platform === 'win32') {
+    // Qualified name: a bare USERNAME can resolve to a different, empty principal.
+    const user = process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME
+    const deny = run('icacls.exe', [path, '/deny', `${user}:(R)`])
+    if (deny.code !== 0) return undefined
+    return () => run('icacls.exe', [path, '/remove:d', user])
+  }
+  if (typeof process.getuid === 'function' && process.getuid() === 0) return undefined
+  spawnSync('chmod', ['000', path])
+  return () => spawnSync('chmod', ['644', path])
+}
+
+async function scenarioPartialCoverage() {
+  const checks = []
+  const notes = []
+  const root = seedWorkspace('partial', { 'src/locked.js': 'try { lockedWork() } catch (error) {}\n' })
+  writeUserPatch(pluginConfigPatch(root))
+  const dsh = new DshProcess('partial', { root }).start()
+  let restore
+  try {
+    const first = await dsh.nextScan(0, 30_000)
+    const lockedBefore = readLedger(root).findings?.filter(item => item.path === 'src/locked.js') ?? []
+    checks.push(check('baseline: finding in src/locked.js recorded', first && lockedBefore.length === 1))
+    restore = makeUnreadable(join(root, 'src', 'locked.js'))
+    if (!restore) {
+      notes.push('could not make a file unreadable on this host (root user or icacls failure); scenario inconclusive')
+      checks.push(check('file made unreadable by the OS', false))
+      return
+    }
+    let since = Date.now()
+    writeFileSync(join(root, 'src', 'trigger.js'), 'export const t = 1\n')
+    await dsh.nextScan(since)
+    since = Date.now()
+    // A directory rename forces a full scan, which must meet the unreadable file.
+    renameSync(join(root, 'src'), join(root, 'src-moved'))
+    renameSync(join(root, 'src-moved'), join(root, 'src'))
+    const full = await dsh.waitFor(() => dsh.scans(since).find(line => scanMode(line) === 'full'), 15_000)
+    await sleep(800)
+    const ledger = readLedger(root)
+    const locked = ledger.findings?.filter(item => item.path === 'src/locked.js') ?? []
+    checks.push(check('full scan after the file became unreadable ran', full, full?.text))
+    checks.push(check('scan status is partial with the file in coverage.failedFiles', ledger.status === 'partial' && ledger.coverage?.failedFiles?.some(item => item.path === 'src/locked.js'), { status: ledger.status, failedFiles: ledger.coverage?.failedFiles }))
+    checks.push(check('finding in the unreadable file stays open (not reported fixed)', locked.length === 1 && locked[0].status === 'open', locked.map(item => item.status)))
+    checks.push(check('plugin report line announces partial coverage', full && /\[partial: /.test(full.text), full?.text))
+
+    restore()
+    restore = undefined
+    since = Date.now()
+    writeFileSync(join(root, 'src', 'locked.js'), 'try { lockedWork() } catch (error) {}\n')
+    await dsh.nextScan(since)
+    await sleep(800)
+    const healed = readLedger(root)
+    checks.push(check('after access is restored, a targeted rescan clears the failure (status complete)', healed.status === 'complete' && healed.coverage?.carriedFailures?.length === 0, { status: healed.status, carried: healed.coverage?.carriedFailures }))
+    const shutdown = await dsh.requestExit()
+    checks.push(check('clean shutdown', shutdown.exitCode === 0 && shutdown.naturalDrain, shutdown))
+  } finally {
+    restore?.()
+    await dsh.kill()
+    record('partial-coverage', 'OS-unreadable file yields partial coverage without false fixes', checks, {}, notes)
+  }
+}
+
 async function scenarioInterrupt() {
   const checks = []
   const root = seedWorkspace('interrupt')
@@ -567,6 +716,8 @@ const scenarios = [
   ['custom-ledger-path', scenarioCustomLedgerPath],
   ['cancellation', scenarioCancellation],
   ['root-removed', scenarioRootRemoved],
+  ['service', scenarioService],
+  ['partial-coverage', scenarioPartialCoverage],
   ['interrupt', scenarioInterrupt],
 ]
 if (args['skip-install'] && !existsSync(join(profileDir, 'package.json'))) {

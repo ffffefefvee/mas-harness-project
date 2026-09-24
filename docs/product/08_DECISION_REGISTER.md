@@ -34,8 +34,11 @@ Status values: **Accepted**, **Provisional**, **Experimental**, **Superseded**, 
 | D-028 | Rejected | More agents or more rounds imply higher quality. | Complexity must prove incremental value over simpler baselines. |
 | D-029 | Rejected | A fact-checking model can verify from memory. | Evidence must come from project tools or retrieved sources. |
 | D-030 | Rejected | Agent messages can be trusted because they come from peers. | Cross-agent prompt injection makes all peer content untrusted. |
-| D-031 | Accepted | Supported platform for the feasibility plugin is Windows only until Linux/macOS runtime runs are recorded. | `fs.watch` recursive semantics differ per OS; unmeasured platforms are not claimed. |
+| D-031 | Provisional | Supported platforms for the feasibility plugin: Windows (verified); Linux and macOS become supported only after a green CI matrix run is recorded. | `fs.watch` recursive semantics differ per OS; first CI evidence 2026-09-24 was positive but not fully green. |
 | D-032 | Accepted | Plugin disposers must cancel in-flight work, not await it. | DSH force-exits after a 5 s shutdown grace; observed at runtime with a 4000-file scan. |
+| D-033 | Accepted | A file that could not be read, was skipped, or was not requested is never marked `fixed`; such scans are `partial` and failures carry over until the path is re-checked. | A missing check must not look like a successful one. |
+| D-034 | Accepted | `ctx.roundtableCodeHealth` v1 is an internal read/refresh service with no authority; events carry counts only, no evidence text. | Keeps findings evidence out of model-visible or cross-plugin channels until an audited seam exists. |
+| D-035 | Accepted | Agent-mode comparisons run on the preregistered protocol in `docs/experiments/PREREGISTRATION.md`; scripted arms are mechanics checks and never quality evidence. | The 16-task corpus has power 0.34 even for +30 pp; about 170 or more held-out tasks are needed for +10 pp. |
 
 ## Updating decisions
 

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t11-path-traversal",
+  "title": "Prevent path traversal in the static file resolver",
+  "class": "security-sensitive",
+  "tags": ["security", "path-traversal"],
+  "instruction": "resolveStaticPath(root, requestPath) in src/static.mjs maps a URL path to a file path under the absolute directory root. Make it safe: percent-decode requestPath (malformed encoding throws RangeError), reject NUL bytes, treat both '/' and '\\\\' as separators, reject absolute or drive-qualified paths after decoding, and return null whenever the resolved path is not root itself or inside root (including sibling directories that merely share root's name as a prefix, such as '/srv/app' vs '/srv/app-secrets'). Otherwise return the resolved absolute path (use node:path resolve). Do not touch the filesystem.",
+  "labels": {
+    "minimumSafeMode": "reviewed",
+    "impact": "high",
+    "reversible": true,
+    "securitySensitive": true,
+    "acceptanceCriteria": [
+      "'..' traversal returns null, also when percent-encoded or with backslashes",
+      "sibling-prefix escape returns null",
+      "absolute and drive paths return null",
+      "NUL bytes return null",
+      "malformed encoding throws RangeError",
+      "normal paths resolve inside root"
+    ],
+    "materialDefectsInFixture": ["no containment check", "startsWith prefix check without separator", "no decoding"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}

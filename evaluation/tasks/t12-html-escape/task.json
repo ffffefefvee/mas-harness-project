@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t12-html-escape",
+  "title": "Escape template values to prevent HTML injection",
+  "class": "security-sensitive",
+  "tags": ["security", "xss"],
+  "instruction": "render(template, values) in src/template.mjs replaces {{name}} placeholders (name matches [A-Za-z_][A-Za-z0-9_]*, optional spaces inside the braces) with values[name]. Make it safe for HTML text and quoted attribute contexts: escape & < > \" ' as &amp; &lt; &gt; &quot; &#39;. Escape '&' first so nothing is double-escaped. Placeholders whose value is undefined or null throw ReferenceError. Non-string values are converted with String() before escaping. Substituted values are never re-scanned for placeholders. Export escapeHtml as well.",
+  "labels": {
+    "minimumSafeMode": "reviewed",
+    "impact": "high",
+    "reversible": true,
+    "securitySensitive": true,
+    "acceptanceCriteria": [
+      "all five characters escaped",
+      "no double escaping",
+      "missing values throw ReferenceError",
+      "substituted values are not re-expanded"
+    ],
+    "materialDefectsInFixture": ["no escaping", "missing value rendered as 'undefined'", "values re-expanded by repeated replace"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}

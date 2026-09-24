@@ -10,11 +10,15 @@
 - stable finding fingerprints and JSON finding lifecycle ledger;
 - deterministic project/public claim-routing skeleton;
 - dependency-free unit tests for the spike;
+- Stage 0 slice of CodeHealthService: targeted (changed-file) rescans with full-scan fallback, `complete`/`partial` coverage where unread files are never marked fixed, O(n) location mapping, cancellable scans, and the `ctx.roundtableCodeHealth` Cordis service (v1, internal, no authority);
+- offline evaluation harness (`evaluation/`): 16 graded tasks, sandboxed-by-permission grader, arms interface, paired statistics, preregistration, and a labeled 81-case corpus measuring the deterministic analyzer;
 - isolated Direct/Reviewed/Team routing evaluation harness;
 - mocked Jev/Laya provider plumbing, loopback-only Laya policy, fallback, and safety floor;
 - historical Python prototypes for selected mechanisms.
 
-### Runtime-verified (Windows 10 x64, `@deepseek-ai/dsh@0.1.6-alpha.1`, 2026-09-24)
+### Runtime-verified (`@deepseek-ai/dsh@0.1.6-alpha.1`, 2026-09-24)
+
+Platforms: Windows 10 x64 locally (9/9 scenarios incl. service and partial coverage); GitHub Actions `ubuntu-latest`, `macos-latest` (arm64) and `windows-latest` on Node 22.19.0 and 24 for the first 7 scenarios. macOS and Windows Server 7/7 except one idle-rescan flake on Windows/Node 22; Linux 6/7 only because the watcher-leak criterion assumed a fixed handle count (Linux uses one inotify handle per directory; count was stable across cycles). The corrected criterion and the Stage 0 scenarios still need a green CI run.
 
 - bundle install, config validation, plugin load, initial scan and ledger creation;
 - file-event rescans, debounce with bounded wait, ignored paths, no self-triggered scans;
@@ -25,7 +29,7 @@ Evidence: `docs/RUNTIME_VERIFICATION.md`, `docs/evidence/dsh-runtime/`.
 
 ### Not runtime-verified
 
-- Linux and macOS behavior (supported platforms are Windows only until measured);
+- a fully green CI matrix with the Stage 0 scenarios (pending rerun);
 - OS-delivered SIGINT/SIGTERM (only in-process emission tested);
 - `web`, `headless`, `sdk`, Desktop profiles and any agent/session interaction;
 - live Jev and Laya calls and quality comparison.
@@ -35,7 +39,8 @@ Evidence: `docs/RUNTIME_VERIFICATION.md`, `docs/evidence/dsh-runtime/`.
 - production event/issue store;
 - formal capability and approval brokers;
 - integrated budget ledger/model gateway;
-- incremental analyzer scheduling and adapter subprocesses;
+- analyzer adapter subprocesses (incremental scheduling is implemented, see above);
+- repository/commit identity in the ledger and authorization of `requestScan` callers;
 - Problems/Plan/Mode/Evidence/Budget UI;
 - complete Claim Critic retrieval and evidence pipeline;
 - Direct, Reviewed, or Team workflow controllers;
@@ -48,7 +53,7 @@ Deliver runtime evidence for the pinned Harness revision, document exact install
 
 Exit: all Harness feasibility gates in the evaluation document pass, or the host strategy is revised.
 
-Status 2026-09-24: passed on Windows; open for Linux/macOS (`docs/RUNTIME_VERIFICATION.md` §7).
+Status 2026-09-24: passed on Windows; first CI evidence for Linux and macOS obtained, final green matrix pending (`docs/RUNTIME_VERIFICATION.md`).
 
 ## 3. Stage 0 — Deterministic kernel
 

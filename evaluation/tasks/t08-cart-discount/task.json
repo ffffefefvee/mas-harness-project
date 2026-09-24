@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t08-cart-discount",
+  "title": "Correct cart totals across pricing and discount modules",
+  "class": "multi-component",
+  "tags": ["bugfix", "money", "multi-file"],
+  "instruction": "Cart totals are wrong. Money must be handled in integer cents. src/pricing.mjs subtotal(lines) sums quantity * unitCents per line (lines are { sku, quantity, unitCents } with non-negative integer quantity and unitCents; throw RangeError otherwise). src/discount.mjs applyDiscount(subtotalCents, code) supports 'SAVE10' (10% off, rounded half up to a whole cent, i.e. discount = Math.round(subtotal * 10 / 100)) and 'FLAT500' (500 cents off, but never below 0); unknown codes throw RangeError, undefined or null code means no discount. src/cart.mjs total(lines, code) returns { subtotalCents, discountCents, totalCents }. Keep the three-module structure.",
+  "labels": {
+    "minimumSafeMode": "reviewed",
+    "impact": "medium",
+    "reversible": true,
+    "securitySensitive": false,
+    "acceptanceCriteria": [
+      "integer cents throughout",
+      "SAVE10 rounds half up",
+      "FLAT500 never produces negative totals",
+      "unknown codes and invalid lines throw RangeError",
+      "total returns subtotal, discount and total"
+    ],
+    "materialDefectsInFixture": ["subtotal ignores quantity", "percentage discount uses floats", "flat discount can go negative", "unknown code silently ignored"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}

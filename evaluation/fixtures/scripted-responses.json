@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "0.1",
+  "evidence": "mechanics-only",
+  "note": "Hand-written responses replayed by scripted arms; mechanics only, not quality evidence.",
+  "tasks": {
+    "t03-paginate": {
+      "worker": [
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/paginate.mjs\n+++ b/src/paginate.mjs\n@@ -1,5 +1,5 @@\n export function paginate(items, page, pageSize) {\n-  const start = page * pageSize\n-  const pages = Math.floor(items.length / pageSize)\n+  const start = (page - 1) * pageSize\n+  const pages = Math.ceil(items.length / pageSize)\n   return { items: items.slice(start, start + pageSize), page, pages }\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 4
+          }
+        },
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/paginate.mjs\n+++ b/src/paginate.mjs\n@@ -1,5 +1,7 @@\n export function paginate(items, page, pageSize) {\n-  const start = page * pageSize\n-  const pages = Math.floor(items.length / pageSize)\n+  if (!Number.isInteger(pageSize) || pageSize < 1) throw new RangeError('pageSize must be a positive integer')\n+  const pages = Math.ceil(items.length / pageSize)\n+  if (!Number.isInteger(page) || page < 1 || page > Math.max(pages, 1)) throw new RangeError(`page out of range: ${page}`)\n+  const start = (page - 1) * pageSize\n   return { items: items.slice(start, start + pageSize), page, pages }\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 4
+          }
+        }
+      ],
+      "reviewer": [
+        {
+          "verdict": "request-changes",
+          "findings": [
+            "pageSize and page are not validated (RangeError required)"
+          ],
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        },
+        {
+          "verdict": "approve",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        }
+      ]
+    },
+    "t12-html-escape": {
+      "worker": [
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/template.mjs\n+++ b/src/template.mjs\n@@ -1,11 +1,13 @@\n+const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }\n+\n export function escapeHtml(value) {\n-  return String(value)\n+  return String(value).replace(/[&<>\"']/g, character => ENTITIES[character])\n }\n \n export function render(template, values) {\n-  let output = template\n-  for (const [name, value] of Object.entries(values)) {\n-    output = output.replaceAll(`{{${name}}}`, String(value))\n-  }\n-  return output\n+  return template.replace(/\\{\\{\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*\\}\\}/g, (_, name) => {\n+    const value = values[name]\n+    if (value === undefined || value === null) throw new ReferenceError(`missing template value: ${name}`)\n+    return escapeHtml(value)\n+  })\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 5
+          }
+        }
+      ],
+      "reviewer": [
+        {
+          "verdict": "approve",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        }
+      ]
+    },
+    "t01-slugify": {
+      "worker": [
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/slug.mjs\n+++ b/src/slug.mjs\n@@ -1,3 +1,3 @@\n export function slugify(title) {\n-  return title.toLowerCase().replace(/[^a-z0-9]/g, '-')\n+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-')\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 3
+          }
+        }
+      ],
+      "reviewer": [
+        {
+          "verdict": "approve",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        }
+      ]
+    },
+    "t05-csv-parse": {
+      "worker": [
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": ""
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 3
+          }
+        },
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": ""
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 3
+          }
+        },
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/csv.mjs\n+++ b/src/csv.mjs\n@@ -1,3 +1,40 @@\n export function parseCsvLine(line) {\n-  return line.split(',')\n+  const fields = []\n+  let field = ''\n+  let index = 0\n+  let quoted = false\n+  while (index <= line.length) {\n+    if (!quoted && field === '' && line[index] === '\"') {\n+      quoted = true\n+      index += 1\n+      let closed = false\n+      while (index < line.length) {\n+        if (line[index] === '\"') {\n+          if (line[index + 1] === '\"') {\n+            field += '\"'\n+            index += 2\n+            continue\n+          }\n+          closed = true\n+          index += 1\n+          break\n+        }\n+        field += line[index]\n+        index += 1\n+      }\n+      if (!closed) throw new SyntaxError('unterminated quoted field')\n+      continue\n+    }\n+    if (index === line.length || line[index] === ',') {\n+      fields.push(field)\n+      field = ''\n+      quoted = false\n+      index += 1\n+      continue\n+    }\n+    if (quoted) throw new SyntaxError(`unexpected character after closing quote at ${index}`)\n+    field += line[index]\n+    index += 1\n+  }\n+  return fields\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 3
+          }
+        }
+      ],
+      "reviewer": [
+        {
+          "verdict": "request-changes",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        },
+        {
+          "verdict": "request-changes",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        }
+      ]
+    },
+    "t07-interval-merge": {
+      "planner": {
+        "verdict": "plan",
+        "usage": {
+          "inputTokens": 800,
+          "outputTokens": 300,
+          "costUnits": 3
+        }
+      },
+      "worker": [
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/intervals.mjs\n+++ b/src/intervals.mjs\n@@ -1,3 +1,9 @@\n export function mergeIntervals(intervals) {\n-  throw new Error('TODO: merge overlapping intervals')\n+  const merged = []\n+  for (const [start, end] of intervals) {\n+    const last = merged.at(-1)\n+    if (last && start < last[1]) last[1] = Math.max(last[1], end)\n+    else merged.push([start, end])\n+  }\n+  return merged\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 4
+          }
+        },
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/intervals.mjs\n+++ b/src/intervals.mjs\n@@ -1,3 +1,14 @@\n export function mergeIntervals(intervals) {\n-  throw new Error('TODO: merge overlapping intervals')\n+  const pairs = intervals.map(([start, end]) => {\n+    if (!Number.isFinite(start) || !Number.isFinite(end) || start > end) throw new RangeError(`invalid interval [${start}, ${end}]`)\n+    return [start, end]\n+  })\n+  pairs.sort((left, right) => left[0] - right[0] || left[1] - right[1])\n+  const merged = []\n+  for (const pair of pairs) {\n+    const last = merged.at(-1)\n+    if (last && pair[0] <= last[1]) last[1] = Math.max(last[1], pair[1])\n+    else merged.push(pair)\n+  }\n+  return merged\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 4
+          }
+        }
+      ],
+      "challenger": [
+        {
+          "verdict": "request-changes",
+          "findings": [
+            "unsorted input and touching intervals not handled"
+          ],
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 3
+          }
+        },
+        {
+          "verdict": "approve",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 3
+          }
+        }
+      ],
+      "reviewer": [
+        {
+          "verdict": "approve",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        }
+      ]
+    },
+    "t06-retry-backoff": {
+      "worker": [
+        {
+          "patch": {
+            "type": "unified-diff",
+            "diff": "--- a/src/retry.mjs\n+++ b/src/retry.mjs\n@@ -1,12 +1,13 @@\n export async function retry(operation, { attempts, baseDelayMs, sleep }) {\n-  let lastError\n-  for (let attempt = 0; attempt <= attempts; attempt++) {\n+  if (!Number.isInteger(attempts) || attempts < 1) throw new RangeError('attempts must be a positive integer')\n+  const errors = []\n+  for (let attempt = 1; attempt <= attempts; attempt++) {\n+    if (attempt > 1) await sleep(baseDelayMs * 2 ** (attempt - 2))\n     try {\n       return await operation(attempt)\n     } catch (error) {\n-      lastError = error\n-      await sleep(baseDelayMs)\n+      errors.push(error)\n     }\n   }\n-  throw lastError\n+  throw new AggregateError(errors, `operation failed after ${attempts} attempts`)\n }\n"
+          },
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 250
+          }
+        }
+      ],
+      "reviewer": [
+        {
+          "verdict": "approve",
+          "usage": {
+            "inputTokens": 800,
+            "outputTokens": 300,
+            "costUnits": 2
+          }
+        }
+      ]
+    }
+  }
+}

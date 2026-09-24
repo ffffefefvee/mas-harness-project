@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "0.1",
+  "id": "t13-token-compare",
+  "title": "Verify webhook signatures safely",
+  "class": "security-sensitive",
+  "tags": ["security", "crypto", "timing"],
+  "instruction": "verifySignature(secret, body, signatureHeader) in src/signature.mjs verifies a webhook. The expected header is 'sha256=' followed by the lowercase hex HMAC-SHA256 of body (a string, UTF-8) keyed with secret. Return true only for an exact match. Return false (never throw) for missing, non-string, wrongly prefixed, wrong-length or non-hex headers. The comparison of the digests must be constant-time with respect to their content: use node:crypto timingSafeEqual on equal-length buffers. An empty secret must throw RangeError, because an empty key makes signatures forgeable.",
+  "labels": {
+    "minimumSafeMode": "reviewed",
+    "impact": "high",
+    "reversible": true,
+    "securitySensitive": true,
+    "acceptanceCriteria": [
+      "valid signatures accepted",
+      "tampered body or signature rejected",
+      "malformed headers return false without throwing",
+      "timingSafeEqual used for the digest comparison",
+      "empty secret throws RangeError"
+    ],
+    "materialDefectsInFixture": ["=== comparison", "throws on malformed header", "accepts uppercase or missing prefix", "empty secret accepted"],
+    "allowedDataDestinations": ["local", "approved-model-provider"],
+    "requiredApprovals": [],
+    "labeler": "single-author-unadjudicated"
+  },
+  "timeoutMs": 10000
+}
