@@ -66,6 +66,8 @@ Approval frequency, override rate, time-to-understand, false-alarm burden, and w
 
 Pass only after the pinned runtime demonstrates load, configuration validation, file events, cancellation, unload/HMR cleanup, clean shutdown, and ledger creation on supported platforms.
 
+Status 2026-09-24: passed on Windows 10 x64 with `@deepseek-ai/dsh@0.1.6-alpha.1` (`scripts/dsh-runtime/check.js`, 7/7 scenarios). Linux and macOS not run; supported platforms are Windows only until they are (D-031).
+
 ### Deterministic kernel gate
 
 Pass only when event persistence, capabilities, budgets, cancellation, scanner coverage/failure semantics, and recovery are tested under faults.

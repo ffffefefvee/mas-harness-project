@@ -2,9 +2,9 @@
 
 ## Verdict
 
-**Conditional pass.** The official DeepSeek Harness architecture has appropriate extension seams for Roundtable: Cordis plugins, reversible effects, typed events, background jobs, tool interception, settings cards, and client modules. A host-only code-health worker can be shipped as an out-of-tree bundle without modifying Harness core.
+**Runtime pass on Windows; Linux/macOS unverified.** The official DeepSeek Harness architecture has appropriate extension seams for Roundtable: Cordis plugins, reversible effects, typed events, background jobs, tool interception, settings cards, and client modules. A host-only code-health worker can be shipped as an out-of-tree bundle without modifying Harness core.
 
-The stage is not an unconditional pass because DeepSeek Harness remains in developer preview and this environment could not run the upstream checkout. The repository therefore contains a source-aligned runnable spike plus tests, not a claim of verified end-to-end DSH compatibility.
+**Update 2026-09-24:** the plugin was installed and exercised in a real `@deepseek-ai/dsh@0.1.6-alpha.1` process on Windows 10 x64 (see `docs/RUNTIME_VERIFICATION.md`). The original spike failed 4 of 7 runtime scenarios (self-triggered rescans, ledger feedback loop, debounce starvation, no cancellation) and could not be installed from a tarball; all were fixed and the fixed plugin passes 7/7. The remaining gap is platform coverage and real OS signal delivery. The earlier text below is retained as the pre-runtime assessment.
 
 ## Confirmed upstream contracts
 
@@ -31,6 +31,8 @@ The beta should not patch AgentLoop. `CodeHealthService` starts as a host plugin
 6. **Install-time trust:** Git-based packages with build scripts require explicit pnpm build permission; this spike avoids a build script by shipping JavaScript directly.
 
 ## Go/no-go gate
+
+Status 2026-09-24: all items below are recorded for Windows in `docs/RUNTIME_VERIFICATION.md`; the platform item is resolved as "Windows only until Linux/macOS runs exist".
 
 Proceed to Stage 0 only after a developer runs the documented installation against the pinned upstream commit and records:
 

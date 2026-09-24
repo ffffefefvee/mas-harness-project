@@ -1,0 +1,462 @@
+﻿{
+  "environment": {
+    "label": "baseline-unfixed",
+    "startedAt": "2026-09-24T21:50:22.562Z",
+    "platform": "win32",
+    "release": "10.0.19045",
+    "arch": "x64",
+    "node": "v24.15.0",
+    "dsh": "0.1.6-alpha.1",
+    "dshAppBoot": "0.1.6-alpha.1",
+    "cordis": "4.0.4",
+    "cordisLoader": "1.0.5",
+    "cordisHmr": "1.0.19",
+    "pnpm": "10.34.5",
+    "pluginCommit": "9c25d0f606b4ba7d731fcdfacadedbcc4ae50536",
+    "pluginDirty": true
+  },
+  "results": [
+    {
+      "id": "install",
+      "title": "bundle install into a pinned DSH profile",
+      "status": "pass",
+      "checks": [
+        {
+          "name": "npm pack produces a tarball",
+          "ok": true,
+          "detail": "dsh-roundtable-beta-0.0.1.tgz"
+        },
+        {
+          "name": "dsh plugin add exits 0",
+          "ok": true
+        },
+        {
+          "name": "profile manifest lists dsh-roundtable-beta as a bundle layer",
+          "ok": true,
+          "detail": [
+            "@deepseek-ai/dsh-base",
+            "dsh-roundtable-beta"
+          ]
+        },
+        {
+          "name": "--dump-config contains the roundtable-code-health row",
+          "ok": true,
+          "detail": 0
+        }
+      ],
+      "metrics": {
+        "tarball": "dsh-roundtable-beta-0.0.1.tgz"
+      },
+      "notes": []
+    },
+    {
+      "id": "config-validation",
+      "title": "Schemastery config validation inside DSH",
+      "status": "pass",
+      "checks": [
+        {
+          "name": "invalid config (debounceMs: 10 < min 50) is reported as an inactive entry",
+          "ok": true,
+          "detail": "roundtable-code-health (dsh-roundtable-beta): ValidationError: invalid config:"
+        },
+        {
+          "name": "no scan runs with invalid config",
+          "ok": true,
+          "detail": 0
+        },
+        {
+          "name": "no ledger is created with invalid config",
+          "ok": true
+        },
+        {
+          "name": "host keeps running and exits cleanly after the rejected entry",
+          "ok": true,
+          "detail": {
+            "exitedInTime": true,
+            "exitCode": 0,
+            "shutdownMs": 123,
+            "naturalDrain": true,
+            "forcedProcessExit": false,
+            "handlesAtBeforeExit": [
+              "PipeWrap",
+              "PipeWrap"
+            ],
+            "pluginDisposedProbe": true
+          }
+        }
+      ],
+      "metrics": {},
+      "notes": [
+        "stderr lines mentioning the schema error: [\"  - $.debounceMs expected number >= 50 but got 10 (at debounceMs)\"]"
+      ]
+    },
+    {
+      "id": "lifecycle",
+      "title": "initial scan, file events, debounce, HMR unload/reload, clean shutdown",
+      "status": "fail",
+      "checks": [
+        {
+          "name": "initial scan reported",
+          "ok": true,
+          "detail": "[roundtable-code-health] 2 open findings (2 new/regressed); 2 files scanned"
+        },
+        {
+          "name": "ledger .roundtable/findings.json created with schemaVersion and 2 seeded findings",
+          "ok": true,
+          "detail": [
+            "empty-catch",
+            "not-implemented-stub"
+          ]
+        },
+        {
+          "name": "idle: ledger write does not retrigger a scan",
+          "ok": false,
+          "detail": 1
+        },
+        {
+          "name": "single file change triggers exactly one rescan",
+          "ok": true,
+          "detail": 1
+        },
+        {
+          "name": "new finding recorded as baselineStatus=new",
+          "ok": true
+        },
+        {
+          "name": "burst of 30 writes within debounce window coalesces into one scan",
+          "ok": true,
+          "detail": 1
+        },
+        {
+          "name": "sustained edits (every 150 ms for 3 s) still produce a scan while editing (no starvation)",
+          "ok": false,
+          "detail": 0
+        },
+        {
+          "name": "writes under ignored directories (node_modules, .git) do not trigger scans",
+          "ok": false,
+          "detail": 1
+        },
+        {
+          "name": "HMR config change re-applies the plugin (fresh initial scan)",
+          "ok": true
+        },
+        {
+          "name": "HMR config change does not leak a watcher",
+          "ok": true,
+          "detail": {
+            "handlesEnabled": 8,
+            "handlesAfterConfig": 8
+          }
+        },
+        {
+          "name": "HMR unload removes the plugin watcher (handle count drops)",
+          "ok": true,
+          "detail": [
+            7,
+            7,
+            7,
+            7,
+            7
+          ]
+        },
+        {
+          "name": "no scans while the plugin is unloaded",
+          "ok": true,
+          "detail": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "name": "re-enable restarts scanning each cycle",
+          "ok": true
+        },
+        {
+          "name": "5 unload/reload cycles leak no watcher handles",
+          "ok": true,
+          "detail": {
+            "handlesEnabled": 8,
+            "after": [
+              8,
+              8,
+              8,
+              8,
+              8
+            ]
+          }
+        },
+        {
+          "name": "bounded app exit drains the event loop naturally (no hanging handle, no forced exit)",
+          "ok": true,
+          "detail": {
+            "exitedInTime": true,
+            "exitCode": 0,
+            "shutdownMs": 102,
+            "naturalDrain": true,
+            "forcedProcessExit": false,
+            "handlesAtBeforeExit": [
+              "PipeWrap",
+              "PipeWrap"
+            ],
+            "pluginDisposedProbe": true
+          }
+        },
+        {
+          "name": "no temporary ledger files left behind",
+          "ok": true,
+          "detail": []
+        },
+        {
+          "name": "no plugin errors on stderr",
+          "ok": true,
+          "detail": []
+        }
+      ],
+      "metrics": {
+        "bootToFirstScanMs": 1695,
+        "changeToScanMs": 270,
+        "burstWriteSpanMs": 465,
+        "burstScans": 1,
+        "scansDuringSustained3s": 0,
+        "scansAfterSustained": 1,
+        "watcherHandlesEnabled": 8,
+        "hmrConfigReloadToScanMs": 424,
+        "unloadCycles": [
+          {
+            "disabledHandles": 7,
+            "scansWhileDisabled": 0,
+            "reenabled": true,
+            "enabledHandles": 8
+          },
+          {
+            "disabledHandles": 7,
+            "scansWhileDisabled": 0,
+            "reenabled": true,
+            "enabledHandles": 8
+          },
+          {
+            "disabledHandles": 7,
+            "scansWhileDisabled": 0,
+            "reenabled": true,
+            "enabledHandles": 8
+          },
+          {
+            "disabledHandles": 7,
+            "scansWhileDisabled": 0,
+            "reenabled": true,
+            "enabledHandles": 8
+          },
+          {
+            "disabledHandles": 7,
+            "scansWhileDisabled": 0,
+            "reenabled": true,
+            "enabledHandles": 8
+          }
+        ],
+        "shutdown": {
+          "exitedInTime": true,
+          "exitCode": 0,
+          "shutdownMs": 102,
+          "naturalDrain": true,
+          "forcedProcessExit": false,
+          "handlesAtBeforeExit": [
+            "PipeWrap",
+            "PipeWrap"
+          ],
+          "pluginDisposedProbe": true
+        }
+      },
+      "notes": []
+    },
+    {
+      "id": "custom-ledger-path",
+      "title": "ledger outside .roundtable does not feed back into the watcher",
+      "status": "fail",
+      "checks": [
+        {
+          "name": "initial scan reported",
+          "ok": true
+        },
+        {
+          "name": "custom ledgerPath: idle for 3 s causes no self-triggered rescans",
+          "ok": false,
+          "detail": 12
+        },
+        {
+          "name": "custom ledgerPath: the ledger file is not scanned as source",
+          "ok": false,
+          "detail": [
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "src/seed.js",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "src/seed.js",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json",
+            "reports/findings.json"
+          ]
+        }
+      ],
+      "metrics": {},
+      "notes": []
+    },
+    {
+      "id": "cancellation",
+      "title": "unload during an active full scan (4000 x 64 KB files)",
+      "status": "fail",
+      "checks": [
+        {
+          "name": "exit is requested while the initial scan is still running",
+          "ok": true
+        },
+        {
+          "name": "active scan is cancelled: exit completes within the 5 s host grace without a forced process.exit",
+          "ok": false,
+          "detail": {
+            "exitedInTime": true,
+            "exitCode": 0,
+            "shutdownMs": 5080,
+            "naturalDrain": false,
+            "forcedProcessExit": true,
+            "handlesAtForcedExit": [
+              "FSReqPromise",
+              "PipeWrap",
+              "PipeWrap"
+            ],
+            "pluginDisposedProbe": true
+          }
+        },
+        {
+          "name": "cancelled scan does not overwrite the previous ledger",
+          "ok": true,
+          "detail": "previous-run"
+        },
+        {
+          "name": "no temporary ledger files left behind",
+          "ok": true,
+          "detail": []
+        }
+      ],
+      "metrics": {
+        "shutdown": {
+          "exitedInTime": true,
+          "exitCode": 0,
+          "shutdownMs": 5080,
+          "naturalDrain": false,
+          "forcedProcessExit": true,
+          "handlesAtForcedExit": [
+            "FSReqPromise",
+            "PipeWrap",
+            "PipeWrap"
+          ],
+          "pluginDisposedProbe": true
+        },
+        "ledgerGeneratedAt": "previous-run"
+      },
+      "notes": []
+    },
+    {
+      "id": "root-removed",
+      "title": "watched workspace root renamed away while DSH runs",
+      "status": "pass",
+      "checks": [
+        {
+          "name": "host process survives removal of the watched root",
+          "ok": true
+        },
+        {
+          "name": "host still exits cleanly afterwards",
+          "ok": true,
+          "detail": {
+            "exitedInTime": true,
+            "exitCode": 0,
+            "shutdownMs": 92,
+            "naturalDrain": true,
+            "forcedProcessExit": false,
+            "handlesAtBeforeExit": [
+              "PipeWrap",
+              "PipeWrap"
+            ],
+            "pluginDisposedProbe": true
+          }
+        }
+      ],
+      "metrics": {},
+      "notes": [
+        "stderr: []"
+      ]
+    },
+    {
+      "id": "interrupt",
+      "title": "SIGINT path (emulated in-process via process.emit, see notes)",
+      "status": "fail",
+      "checks": [
+        {
+          "name": "SIGINT handler disposes the tree (probe disposer ran) and exits 130",
+          "ok": true,
+          "detail": {
+            "exitedInTime": true,
+            "exitCode": 130,
+            "shutdownMs": 42,
+            "naturalDrain": false,
+            "forcedProcessExit": true,
+            "handlesAtForcedExit": [
+              "PipeWrap",
+              "PipeWrap",
+              "FSEventWrap",
+              "FSEventWrap",
+              "FSEventWrap",
+              "FSEventWrap",
+              "FSEventWrap",
+              "FSEventWrap",
+              "FSEventWrap",
+              "FSEventWrap"
+            ],
+            "pluginDisposedProbe": true
+          }
+        },
+        {
+          "name": "handles at the host forced exit contain no plugin watcher",
+          "ok": false,
+          "detail": [
+            "PipeWrap",
+            "PipeWrap",
+            "FSEventWrap",
+            "FSEventWrap",
+            "FSEventWrap",
+            "FSEventWrap",
+            "FSEventWrap",
+            "FSEventWrap",
+            "FSEventWrap",
+            "FSEventWrap"
+          ]
+        }
+      ],
+      "metrics": {},
+      "notes": [
+        "SIGINT is emitted inside the DSH process by the probe; DSH itself calls process.exit(130) after disposal (interrupt path), so natural drain is not expected here."
+      ]
+    }
+  ],
+  "finishedAt": "2026-09-24T21:51:35.253Z"
+}

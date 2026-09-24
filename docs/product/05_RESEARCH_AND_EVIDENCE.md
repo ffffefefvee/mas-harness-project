@@ -45,18 +45,18 @@ Primary source: [OpenTelemetry GenAI semantic conventions](https://opentelemetry
 
 ### Harness is architecturally suitable but compatibility must be measured
 
-Upstream DeepSeek Harness describes an everything-is-a-plugin Cordis architecture with services, typed events, and reversible effects. Repository inspection supports an out-of-tree plugin approach. The local spike has not yet been executed against the pinned Harness runtime in this project.
+Upstream DeepSeek Harness describes an everything-is-a-plugin Cordis architecture with services, typed events, and reversible effects. Repository inspection supports an out-of-tree plugin approach. On 2026-09-24 the spike was executed in `@deepseek-ai/dsh@0.1.6-alpha.1` on Windows: it initially failed 4 of 7 lifecycle scenarios, which source inspection had not revealed, and passes 7/7 after fixes (`docs/RUNTIME_VERIFICATION.md`). This proves lifecycle compatibility for one host version and one OS; it says nothing about agent-facing integration or quality.
 
 Primary sources: [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) and its [architecture document](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md)
 
 ## 3. Repository evidence available now
 
 - Scanner unit tests exercise seed rules, redaction, stable fingerprints, finding lifecycle, and claim routing.
-- The feasibility package matches inspected plugin and lifecycle shapes at the pinned upstream commit.
+- The feasibility package matches inspected plugin and lifecycle shapes at the pinned upstream commit, and its lifecycle is runtime-verified on Windows (see above).
 - The Jev/Laya harness validates request/response plumbing, fallback, loopback restriction, and deterministic safety floors with mocks/synthetic fixtures.
 - Root Python prototypes demonstrate selected concepts such as circuit breaking, event replay, tie-breaking, and permission intersection.
 
-These results do not establish production reliability, DSH runtime compatibility, model quality, real privacy, or the benefit of Team mode.
+These results do not establish production reliability, DSH compatibility beyond the tested version/OS, model quality, real privacy, or the benefit of Team mode.
 
 ## 4. Corrected or withdrawn claims from historical material
 

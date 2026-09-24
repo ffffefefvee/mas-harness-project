@@ -1,0 +1,60 @@
+name: dsh-runtime
+
+# Runtime verification of the feasibility plugin inside a pinned DeepSeek Harness on every
+# supported-platform candidate. No secrets, no model providers: only npm registry downloads.
+on:
+  push:
+    branches: ['beta/**', 'main']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install --no-fund --no-audit
+      - run: node --test
+
+  runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['22.19.0', '24']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      DSH_PIN_DIR: ${{ github.workspace }}/../dsh-pin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Install pinned DeepSeek Harness
+        shell: bash
+        run: |
+          mkdir -p "$DSH_PIN_DIR"
+          cp scripts/dsh-runtime/runtime-package.json "$DSH_PIN_DIR/package.json"
+          cd "$DSH_PIN_DIR"
+          npm install --no-fund --no-audit
+          node node_modules/@deepseek-ai/dsh/lib/bin.js --version
+          node -e "const fs=require('fs');const d='node_modules/@deepseek-ai';const v=new Set(fs.readdirSync(d).filter(n=>n.startsWith('dsh')).map(n=>JSON.parse(fs.readFileSync(d+'/'+n+'/package.json')).version));console.log('dsh-* versions',[...v]);if(v.size!==1)process.exit(1)"
+      - name: Plugin unit tests
+        run: node --test
+      - name: Runtime scenarios in DSH
+        shell: bash
+        run: node scripts/dsh-runtime/check.js --dsh-dir "$DSH_PIN_DIR" --work "$DSH_PIN_DIR/check" --label "${{ matrix.os }}-node${{ matrix.node }}"
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dsh-runtime-${{ matrix.os }}-node${{ matrix.node }}
+          path: ${{ env.DSH_PIN_DIR }}/check/results-*.json
+          if-no-files-found: warn

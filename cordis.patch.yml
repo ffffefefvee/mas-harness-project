@@ -5,5 +5,6 @@
         root: !!js process.env.ROUND_TABLE_WORKSPACE ?? process.cwd()
         ledgerPath: '.roundtable/findings.json'
         debounceMs: 250
+        maxWaitMs: 2000
         maxFileBytes: 1000000
         watch: true

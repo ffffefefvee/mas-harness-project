@@ -14,11 +14,20 @@
 - mocked Jev/Laya provider plumbing, loopback-only Laya policy, fallback, and safety floor;
 - historical Python prototypes for selected mechanisms.
 
+### Runtime-verified (Windows 10 x64, `@deepseek-ai/dsh@0.1.6-alpha.1`, 2026-09-24)
+
+- bundle install, config validation, plugin load, initial scan and ledger creation;
+- file-event rescans, debounce with bounded wait, ignored paths, no self-triggered scans;
+- HMR config reload and 5 unload/reload cycles without watcher leaks;
+- cancellation of an in-flight scan on unload and clean shutdown without hanging handles.
+
+Evidence: `docs/RUNTIME_VERIFICATION.md`, `docs/evidence/dsh-runtime/`.
+
 ### Not runtime-verified
 
-- loading the plugin in the pinned DSH runtime;
-- HMR/unload and shutdown behavior in DSH;
-- supported operating-system behavior;
+- Linux and macOS behavior (supported platforms are Windows only until measured);
+- OS-delivered SIGINT/SIGTERM (only in-process emission tested);
+- `web`, `headless`, `sdk`, Desktop profiles and any agent/session interaction;
 - live Jev and Laya calls and quality comparison.
 
 ### Not implemented
@@ -38,6 +47,8 @@
 Deliver runtime evidence for the pinned Harness revision, document exact installation, and close lifecycle uncertainties.
 
 Exit: all Harness feasibility gates in the evaluation document pass, or the host strategy is revised.
+
+Status 2026-09-24: passed on Windows; open for Linux/macOS (`docs/RUNTIME_VERIFICATION.md` §7).
 
 ## 3. Stage 0 — Deterministic kernel
 

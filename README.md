@@ -65,7 +65,7 @@ The original `01_...` through `05_...` files, `mas_*` audit files, Python experi
 
 ## Immediate next gate
 
-Run the feasibility plugin against the pinned DeepSeek Harness revision and record plugin load, filesystem events, unload/HMR cleanup, shutdown, ledger creation, and supported platforms. Until that succeeds, Harness compatibility remains conditional.
+Runtime feasibility is recorded for Windows with `@deepseek-ai/dsh@0.1.6-alpha.1` (`docs/RUNTIME_VERIFICATION.md`). Remaining for the Harness gate: run `scripts/dsh-runtime/check.js` on Linux and macOS. Next stage: deterministic kernel (Stage 0).
 
 ## License and contribution status
 

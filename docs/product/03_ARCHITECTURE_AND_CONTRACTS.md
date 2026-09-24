@@ -146,8 +146,8 @@ Use OpenTelemetry GenAI semantic conventions where stable and add Roundtable-spe
 
 | Planned component | Current evidence | Gap |
 |---|---|---|
-| Harness plugin lifecycle | `index.js`, `cordis.patch.yml` | Not runtime-verified in DSH |
-| CodeHealthService seed | `lib/scanner.js`, analyzers, ledger tests | Full rescans, JSON store, regex-only seed rules |
+| Harness plugin lifecycle | `index.js`, `cordis.patch.yml`, `scripts/dsh-runtime/check.js` | Runtime-verified on Windows with DSH 0.1.6-alpha.1; Linux/macOS unverified |
+| CodeHealthService seed | `lib/scanner.js`, `lib/schedule.js`, analyzers, ledger/lifecycle tests | Full rescans, JSON store, regex-only seed rules, no formal service seam |
 | Claim router seed | `lib/claim-critic.js` | No extraction, retrieval, evidence store, or model integration |
 | Routing experiment | `decision-routing/` | Synthetic data; no live Laya/Jev comparison |
 | Event and resilience prototypes | root Python modules | Not integrated with the JS plugin |

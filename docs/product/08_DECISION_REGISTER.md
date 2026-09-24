@@ -17,7 +17,7 @@ Status values: **Accepted**, **Provisional**, **Experimental**, **Superseded**, 
 | D-011 | Accepted | Record cost estimates, reservations, observed usage, and provider charges separately. | Client estimates are not provider-enforced caps. |
 | D-012 | Accepted | Require isolated execution and deterministic post-change checks in Direct mode. | Direct means no independent model review, not no verification. |
 | D-013 | Accepted | Preserve historical documents but make `docs/product/` authoritative. | Retains provenance without allowing obsolete plans to compete with the current spec. |
-| D-014 | Provisional | DeepSeek Harness is the production host. | Source inspection and a plugin spike are positive; runtime feasibility is still a gate. |
+| D-014 | Provisional | DeepSeek Harness is the production host. | Runtime feasibility passed on Windows with DSH 0.1.6-alpha.1 (2026-09-24); Linux/macOS runs and agent-facing seams are still open. |
 | D-015 | Provisional | Production persistence will use a transactional local store. | JSON is adequate for the spike, not yet chosen as the production durability format. |
 | D-016 | Experimental | Laya, Jev, or their cascade may advise task routing. | No live comparative evidence exists; rules remain default. |
 | D-017 | Experimental | Team mode can improve selected high-impact tasks. | Must beat Reviewed on held-out tasks after cost, latency, and safety. |
@@ -34,6 +34,8 @@ Status values: **Accepted**, **Provisional**, **Experimental**, **Superseded**, 
 | D-028 | Rejected | More agents or more rounds imply higher quality. | Complexity must prove incremental value over simpler baselines. |
 | D-029 | Rejected | A fact-checking model can verify from memory. | Evidence must come from project tools or retrieved sources. |
 | D-030 | Rejected | Agent messages can be trusted because they come from peers. | Cross-agent prompt injection makes all peer content untrusted. |
+| D-031 | Accepted | Supported platform for the feasibility plugin is Windows only until Linux/macOS runtime runs are recorded. | `fs.watch` recursive semantics differ per OS; unmeasured platforms are not claimed. |
+| D-032 | Accepted | Plugin disposers must cancel in-flight work, not await it. | DSH force-exits after a 5 s shutdown grace; observed at runtime with a 4000-file scan. |
 
 ## Updating decisions
 

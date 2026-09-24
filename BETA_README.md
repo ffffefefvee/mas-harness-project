@@ -45,8 +45,9 @@ Set `ROUND_TABLE_WORKSPACE` to the repository that should be scanned. Do not poi
 
 ## Important limitations
 
-- This environment could not execute DSH itself, so lifecycle compatibility is source-aligned but not runtime-proven.
-- File events currently coalesce into a full text scan; production needs changed-file/range scheduling.
+- Runtime-verified only on Windows 10 x64 with `@deepseek-ai/dsh@0.1.6-alpha.1` (`docs/RUNTIME_VERIFICATION.md`); Linux and macOS are unverified.
+- Install from a packed tarball (`npm pack`) or registry; a `link:` install of a checkout without its own `node_modules` fails to import `@deepseek-ai/schemastery`.
+- File events currently coalesce into a full text scan (debounce `debounceMs`, bounded by `maxWaitMs`); production needs changed-file/range scheduling.
 - The ledger is JSON, not the planned transactional SQLite/WAL store.
 - Rules are regex heuristics, not AST analysis and not proof of AI authorship.
 - The Claim Critic has only a deterministic routing skeleton; no web provider or model is wired.
@@ -55,4 +56,4 @@ Set `ROUND_TABLE_WORKSPACE` to the repository that should be scanned. Do not poi
 
 ## Next gate
 
-Run this package against the pinned DSH commit and prove load, HMR unload, filesystem event handling, clean shutdown, and ledger creation. Only after that should we add a formal service seam, SQLite, analyzer subprocess adapters, and UI.
+Done for Windows: `node scripts/dsh-runtime/check.js --dsh-dir <pinned dsh dir>` proves load, config validation, file events, debounce, HMR unload, cancellation, clean shutdown, and ledger creation. Remaining: run it on Linux and macOS. Next engineering stage: formal service seam, changed-file scheduling, transactional store, analyzer subprocess adapters, UI.
