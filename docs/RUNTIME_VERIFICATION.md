@@ -186,7 +186,7 @@ through a junction/symlink** in an intermediate segment; `requestScan({ paths: [
 `onResult` error turning a successful scan into a failure; dispose during the ledger write still resolving
 waiters; case-variant paths duplicating findings on case-insensitive filesystems. Hardening: unique temp
 file names with cleanup, and a scan chain that survives callback errors. After the fixes the local run is 9/9
-(`win10-final`); the CI matrix is re-run on the fix commit.
+(`win10-final`), and CI run `36119609354` on commit `49d374b` is green again with the same matrix results (Linux/macOS 9/9, Windows 8/9 + 1 inconclusive).
 
 Lesson recorded: runtime lifecycle scenarios verify integration, not scanner logic; both layers are required.
 
