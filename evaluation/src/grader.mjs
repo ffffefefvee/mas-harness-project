@@ -8,7 +8,7 @@
 // permission model; only trusted corpus code and patches should be graded until the Direct-mode
 // sandbox (docs/product 03 §7) exists.
 import { spawn } from 'node:child_process'
-import { cp, mkdtemp, readdir, rm } from 'node:fs/promises'
+import { cp, mkdtemp, readdir, realpath, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { PatchError, applyPatch } from './patch.mjs'
@@ -81,7 +81,10 @@ function tapCounts(stdout) {
  */
 export async function gradePatch(task, patch, { keepWorkDir = false } = {}) {
   const started = performance.now()
-  const workDir = await mkdtemp(join(tmpdir(), `rt-eval-${task.id}-`))
+  // Canonical path: on macOS tmpdir() is under the /var -> /private/var symlink, and the
+  // permission model checks resolved paths, so an --allow-fs-read on the symlinked path denies
+  // everything (observed in CI: "Could not find 'acceptance/acceptance.mjs'").
+  const workDir = await realpath(await mkdtemp(join(tmpdir(), `rt-eval-${task.id}-`)))
   try {
     await cp(task.repoDir, workDir, { recursive: true })
     let changes

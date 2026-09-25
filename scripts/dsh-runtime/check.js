@@ -660,7 +660,10 @@ async function scenarioPartialCoverage() {
     checks.push(check('a scan after the file became unreadable met it', covering, full?.text))
     checks.push(check('scan status is partial with the file in coverage.failedFiles', ledger.status === 'partial' && ledger.coverage?.failedFiles?.some(item => item.path === 'src/locked.js'), { status: ledger.status, failedFiles: ledger.coverage?.failedFiles }))
     checks.push(check('finding in the unreadable file stays open (not reported fixed)', locked.length === 1 && locked[0].status === 'open', locked.map(item => item.status)))
-    checks.push(check('plugin report line announces partial coverage', full && /\[partial: /.test(full.text), full?.text))
+    // Later targeted scans of sibling files may follow the covering one, so look at every report
+    // line since the directory touch rather than only the last.
+    const partialLine = dsh.scans(since).find(line => /\[partial: /.test(line.text))
+    checks.push(check('plugin report line announces partial coverage', partialLine, partialLine?.text ?? dsh.scans(since).map(line => line.text)))
 
     restore()
     restore = undefined
