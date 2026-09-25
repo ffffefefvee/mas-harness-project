@@ -18,7 +18,7 @@
 
 ### Runtime-verified (`@deepseek-ai/dsh@0.1.6-alpha.1`, 2026-09-24)
 
-Platforms: Windows 10 x64 locally (9/9 scenarios incl. service and partial coverage); GitHub Actions `ubuntu-latest`, `macos-latest` (arm64) and `windows-latest` on Node 22.19.0 and 24 for the first 7 scenarios. macOS and Windows Server 7/7 except one idle-rescan flake on Windows/Node 22; Linux 6/7 only because the watcher-leak criterion assumed a fixed handle count (Linux uses one inotify handle per directory; count was stable across cycles). The corrected criterion and the Stage 0 scenarios still need a green CI run.
+Platforms: Windows 10 x64 locally (9/9 scenarios incl. service and partial coverage); GitHub Actions run 36116878136 green on `ubuntu-latest` and `macos-latest` (9/9) and `windows-latest` (8/9 + partial-coverage inconclusive under an elevated account), each on Node 22.19.0 and 24.
 
 - bundle install, config validation, plugin load, initial scan and ledger creation;
 - file-event rescans, debounce with bounded wait, ignored paths, no self-triggered scans;
@@ -29,7 +29,7 @@ Evidence: `docs/RUNTIME_VERIFICATION.md`, `docs/evidence/dsh-runtime/`.
 
 ### Not runtime-verified
 
-- a fully green CI matrix with the Stage 0 scenarios (pending rerun);
+
 - OS-delivered SIGINT/SIGTERM (only in-process emission tested);
 - `web`, `headless`, `sdk`, Desktop profiles and any agent/session interaction;
 - live Jev and Laya calls and quality comparison.
@@ -53,7 +53,7 @@ Deliver runtime evidence for the pinned Harness revision, document exact install
 
 Exit: all Harness feasibility gates in the evaluation document pass, or the host strategy is revised.
 
-Status 2026-09-24: passed on Windows; first CI evidence for Linux and macOS obtained, final green matrix pending (`docs/RUNTIME_VERIFICATION.md`).
+Status 2026-09-25: **passed** for host lifecycle on Windows, Linux and macOS (`docs/RUNTIME_VERIFICATION.md` §8). Open: OS signal delivery, non-base profiles.
 
 ## 3. Stage 0 — Deterministic kernel
 

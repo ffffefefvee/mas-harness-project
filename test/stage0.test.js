@@ -287,7 +287,8 @@ test('explicit requestScan bypasses the debounce and resolves with its result', 
   const result = await service.requestScan({ paths: ['src/a.js'] })
   assert.ok(Date.now() - started < 2000)
   assert.equal(result.mode, 'targeted')
-  assert.throws(() => service.requestScan({ paths: ['../outside'] }), TypeError, 'invalid paths fail synchronously, before queuing')
+  await assert.rejects(service.requestScan({ paths: ['../outside'] }), TypeError, 'invalid paths reject before queuing')
+  assert.equal(service.status().pending, false)
 })
 
 test('dispose cancels an active scan, rejects waiters, and blocks new requests', async t => {

@@ -47,12 +47,11 @@ export function apply(ctx, config) {
         )
       }
       if (consume('service-invalid')) {
-        try {
-          service.requestScan({ paths: ['../outside.js'] })
-          log('service-invalid-accepted')
-        } catch (error) {
-          log('service-invalid-rejected', { name: error?.name })
-        }
+        // requestScan reports validation errors as a rejected promise, never a synchronous throw.
+        service.requestScan({ paths: ['../outside.js'] }).then(
+          () => log('service-invalid-accepted'),
+          error => log('service-invalid-rejected', { name: error?.name }),
+        )
       }
       if (consume('service-slow')) {
         // Full scan that the test interrupts by unloading the provider mid-scan.

@@ -141,3 +141,58 @@ node scripts/dsh-runtime/check.js --dsh-dir ~/dsh-pin --label linux   # or macos
 
 Commit the resulting `results-<label>.json` under `docs/evidence/dsh-runtime/` (replace the home path), and
 additionally send a real `kill -INT` / `kill -TERM` to the dsh process once to confirm OS signal delivery.
+
+## 8. Cross-platform CI (GitHub Actions)
+
+Workflow `.github/workflows/dsh-runtime.yml`: 2 Node versions (22.19.0, 24) x 3 hosted runners, each installing
+the pinned Harness from `scripts/dsh-runtime/runtime-package.json`, running `node --test`, then `check.js`
+(9 scenarios). No secrets or model providers are involved.
+
+**Green run:** `36116878136` on commit `919a9ce` (2026-09-25). Per-job JSON: `docs/evidence/dsh-runtime/ci-36116878136/`.
+
+| Runner | Node 22.19.0 | Node 24 |
+|---|---|---|
+| `ubuntu-latest` (linux-x64, kernel 6.17 azure) | 9/9 | 9/9 |
+| `macos-latest` (darwin-arm64) | 9/9 | 9/9 |
+| `windows-latest` (Windows Server, 10.0.26100) | 8/9 + 1 inconclusive | 8/9 + 1 inconclusive |
+
+`inconclusive` = `partial-coverage` on Windows CI: the runner account can still read a file after an ACL read-deny
+(administrator), so the precondition is absent and the scenario proves nothing there. It passes on the local
+non-elevated Windows 10 account and on Linux/macOS (`EACCES`).
+
+### What earlier CI runs found (all fixed before the green run)
+
+| Run | Finding | Kind | Fix |
+|---|---|---|---|
+| 36070629581 | Artifact upload rejected `..` in path | CI config | pin dir moved to `$RUNNER_TEMP` |
+| 36070629581 | Linux watcher count 25 -> 26, stable across 5 cycles | test criterion | compare cycles with each other (Linux: one inotify handle per directory) |
+| 0f60d83 run | Grader could not spawn tests on Node 22.19 | harness bug | Node 22 hides `--experimental-test-isolation` from `allowedNodeEnvironmentFlags`; choose by version |
+| 0f60d83 run | Linux scan after dir rename is targeted, not full | test assumption | assert on coverage, not scan mode |
+| 36074641067 | macOS grader denied all reads | harness bug | `tmpdir()` is behind `/var` -> `/private/var`; permission model checks resolved paths; use `realpath` |
+| 36114621462 | Linux partial report line missed | test timing | chmod itself emits a `change` event; count from the permission change |
+| 36115547622 | "idle rescan" on Windows/Node 22 | **test race** | raw watch log showed every event `ignore`; the counted scan was the initial one (same-millisecond timestamp). This was the intermittent idle failure seen locally too; plugin behaviour was correct |
+| 36116282617 | Linux service consumer not restarted after re-enable | test timing (probable) | 2 s settle before re-enable, as in lifecycle cycles; not reproduced since, root cause not proven |
+
+Observed behaviour worth recording: when the watched root is renamed away, POSIX runs log
+`scan failed ENOENT scandir <root>` (Windows does not); the host keeps running and exits cleanly, and the ledger is
+not rewritten. This matches the specified rule that an unreadable root aborts a scan.
+
+### Independent code review after the green run
+
+A separate review of the plugin diff found 6 logic defects that all runtime scenarios and 82 unit tests had
+missed. All were fixed with red-then-green regression tests (`test/review-fixes.test.js`, 94 tests total):
+overlapping targets downgrading `new`/`worsened` to `existing`; targeted scans reading **outside the workspace
+through a junction/symlink** in an intermediate segment; `requestScan({ paths: [] })` never settling; an
+`onResult` error turning a successful scan into a failure; dispose during the ledger write still resolving
+waiters; case-variant paths duplicating findings on case-insensitive filesystems. Hardening: unique temp
+file names with cleanup, and a scan chain that survives callback errors. After the fixes the local run is 9/9
+(`win10-final`); the CI matrix is re-run on the fix commit.
+
+Lesson recorded: runtime lifecycle scenarios verify integration, not scanner logic; both layers are required.
+
+### Remaining limits
+
+- Hosted runners are ephemeral VMs; no long-running workstation, network filesystem, WSL, or container run.
+- `partial-coverage` is unverified on Windows under an elevated account.
+- OS-delivered SIGINT/SIGTERM and non-base profiles (`web`, `headless`, `sdk`, Desktop) remain untested.
+- One green run is evidence of feasibility, not of flake-freedom; keep the matrix on every push.
