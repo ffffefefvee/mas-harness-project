@@ -616,6 +616,7 @@ async function scenarioPartialCoverage() {
   const checks = []
   const notes = []
   let inconclusive = false
+  const metrics = {}
   const root = seedWorkspace('partial', { 'src/locked.js': 'try { lockedWork() } catch (error) {}\n' })
   writeUserPatch(pluginConfigPatch(root))
   const dsh = new DshProcess('partial', { root }).start()
@@ -624,6 +625,9 @@ async function scenarioPartialCoverage() {
     const first = await dsh.nextScan(0, 30_000)
     const lockedBefore = readLedger(root).findings?.filter(item => item.path === 'src/locked.js') ?? []
     checks.push(check('baseline: finding in src/locked.js recorded', first && lockedBefore.length === 1))
+    // On Linux the permission change itself emits an attribute `change` event for the file, so the
+    // covering targeted scan can happen before the directory touch below; count from here.
+    const lockedAt = Date.now()
     restore = makeUnreadable(join(root, 'src', 'locked.js'))
     let unreadable = false
     if (restore) {
@@ -662,8 +666,10 @@ async function scenarioPartialCoverage() {
     checks.push(check('finding in the unreadable file stays open (not reported fixed)', locked.length === 1 && locked[0].status === 'open', locked.map(item => item.status)))
     // Later targeted scans of sibling files may follow the covering one, so look at every report
     // line since the directory touch rather than only the last.
-    const partialLine = dsh.scans(since).find(line => /\[partial: /.test(line.text))
-    checks.push(check('plugin report line announces partial coverage', partialLine, partialLine?.text ?? dsh.scans(since).map(line => line.text)))
+    const partialLine = dsh.scans(lockedAt).find(line => /\[partial: /.test(line.text))
+    checks.push(check('plugin report line announces partial coverage', partialLine, partialLine?.text ?? dsh.scans(lockedAt).map(line => line.text)))
+    // Diagnostic only: whether renaming a watched directory away and back produced any scan.
+    metrics.scansAfterDirectoryRename = dsh.scans(since).map(line => scanMode(line))
 
     restore()
     restore = undefined
@@ -678,7 +684,7 @@ async function scenarioPartialCoverage() {
   } finally {
     restore?.()
     await dsh.kill()
-    record('partial-coverage', 'OS-unreadable file yields partial coverage without false fixes', checks, {}, notes, { inconclusive })
+    record('partial-coverage', 'OS-unreadable file yields partial coverage without false fixes', checks, metrics, notes, { inconclusive })
   }
 }
 
