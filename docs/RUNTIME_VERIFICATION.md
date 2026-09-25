@@ -5,16 +5,18 @@
 > in-flight `requestScan` rejected with `ROUNDTABLE_STOPPED` on unload, restart on re-enable) and
 > `partial-coverage` (OS-unreadable file via ACL deny → `status: partial`, `failedFiles: [{path, code: EPERM}]`,
 > finding stays `open`, cleared after access is restored); `lifecycle` now also asserts that a file change
-> triggers a **targeted** one-file scan. Result: 8/9 scenarios passed in the full run; `custom-ledger-path`
-> failed once with one unexpected full scan during the idle window, and passed 3/3 when run alone and 2/2
-> after `lifecycle`. Cause not yet identified (flaky, see `docs/evidence/dsh-runtime/2026-09-24-win32-stage0.json`).
+> triggers a **targeted** one-file scan. First full run: 8/9 (`custom-ledger-path` saw one unexpected full scan
+> while idle). After adding raw watch-event logging (`ROUNDTABLE_DEBUG_WATCH=1`, always on in `check.js`) the full
+> run passed 9/9 and 6 further repetitions of `lifecycle` + `custom-ledger-path` passed 12/12; the idle flake did
+> not reproduce locally, so its cause is **unknown**, not fixed. If it recurs, the failing check now prints every
+> raw event and its scheduling decision. Evidence: `docs/evidence/dsh-runtime/2026-09-24-win32-stage0.json`.
 > Scanner micro-benchmark (`scripts/bench-scanner.js`, Windows, warm cache, median of 3): full scan
 > 2000×64 KB 811 → 783 ms; targeted one-file scan in the same workspace 4 ms (not available before);
 > location lookup for 8000 matches in 1.4 MB 716 → 7 ms.
 
 
 **Date:** 2026-09-24
-**Status:** Harness feasibility gate **passed on Windows only**; Linux and macOS not executed.
+**Status:** see §8 (cross-platform CI). Sections 1–7 describe the original local Windows verification.
 **Evidence:** `docs/evidence/dsh-runtime/*.json` (machine-readable, local paths replaced by `<HOME>`).
 
 Every result below comes from booting a real `dsh --profile <name>` process with the plugin installed through
@@ -116,21 +118,20 @@ Unit tests for these behaviors: `test/lifecycle.test.js`.
 
 ## 6. Limits of this evidence
 
-- **Platforms:** only Windows 10 x64. WSL and Docker are not installed on the test machine; Linux and macOS
-  behavior (recursive `fs.watch` semantics differ by platform) is **unverified**. Until someone runs `check.js`
-  there, the supported-platform list is **Windows only**.
+- **Platforms:** local runs are Windows 10 x64 only (no WSL/Docker on the test machine). Linux and macOS are
+  covered by GitHub Actions hosted runners (§8), which are ephemeral VMs, not developer workstations.
 - **Signals:** SIGINT was emitted inside the process (`process.emit`), exercising DSH's handler and the plugin
   disposer, but not OS signal delivery or Ctrl+C in a console. Real SIGTERM on POSIX is untested.
 - **Harness surface:** a custom base-only profile was booted; `web`, `headless`, `sdk`, and Desktop profiles were
   not. No agent session, model call, tool use, or UI was involved.
-- **Scale:** full rescans remain; 2000×64 KB took ≈4.3 s in a standalone calibration. `lineAndColumn` is
-  O(n·matches) (8000 matches in 1.4 MB ≈ 0.7 s). Both are Stage 0 work (changed-file scheduling).
+- **Scale:** addressed in the Stage 0 slice (targeted rescans, O(n) locations; see the note at the top).
+  Full scans still run at startup and on directory renames or unattributed events.
 - **Version drift:** DSH is a developer preview; `next`/`alpha` tags were already at `0.1.7-*` on the test date.
   Results apply to `0.1.6-alpha.1` only.
 
-## 7. What a human must do to close the platform gap
+## 7. Manual reproduction on another machine
 
-On a Linux and a macOS machine with Node `^22.19.0 || >=24`:
+CI (§8) now covers Linux and macOS automatically. To reproduce on a workstation with Node `^22.19.0 || >=24`:
 
 ```sh
 mkdir ~/dsh-pin && cp scripts/dsh-runtime/runtime-package.json ~/dsh-pin/package.json

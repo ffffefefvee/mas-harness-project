@@ -208,6 +208,15 @@ class DshProcess {
     return this.lines.filter(line => line.stream === 'stdout' && line.t >= since && REPORT.test(line.text))
   }
 
+  // Start of a quiet window that excludes an already observed report line. Timestamps have
+  // millisecond resolution and polling is 50 ms, so `Date.now()` right after `nextScan()` can equal
+  // the observed line's timestamp; `scans(since)` would then count that line as a new scan.
+  // Root cause of the intermittent "idle rescan" failures on Windows (CI run 36115547622: every raw
+  // watch event was classified `ignore`, and the counted line was the initial scan itself).
+  after(line) {
+    return Math.max(Date.now(), (line?.t ?? 0) + 1)
+  }
+
   stderr() {
     return this.lines.filter(line => line.stream === 'stderr').map(line => line.text)
   }
@@ -362,7 +371,7 @@ async function scenarioLifecycle() {
     checks.push(check('ledger .roundtable/findings.json created with schemaVersion and 2 seeded findings', ledger.schemaVersion === LEDGER_SCHEMA_VERSION && ledger.findings?.length === 2, ledger.error ?? { schemaVersion: ledger.schemaVersion, rules: ledger.findings?.map(item => item.ruleId) }))
     checks.push(check('initial scan is a complete full scan', ledger.mode === 'full' && ledger.status === 'complete', { mode: ledger.mode, status: ledger.status }))
 
-    let since = Date.now()
+    let since = dsh.after(first)
     await sleep(2_500)
     const idleLines = dsh.lines.filter(line => line.t >= since - 500 && /roundtable/.test(line.text)).map(line => `${line.t - since}ms ${line.text}`)
     checks.push(check('idle: ledger write does not retrigger a scan', dsh.scans(since).length === 0, dsh.scans(since).length === 0 ? 0 : idleLines))
@@ -462,7 +471,7 @@ async function scenarioCustomLedgerPath() {
   try {
     const first = await dsh.nextScan(0, 30_000)
     checks.push(check('initial scan reported', first))
-    const since = Date.now()
+    const since = dsh.after(first)
     await sleep(3_000)
     const idleScans = dsh.scans(since)
     const ledger = readLedger(root, 'reports/findings.json')
