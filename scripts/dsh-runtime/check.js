@@ -590,11 +590,16 @@ async function scenarioService() {
     checks.push(check('unloading the provider disposes the dependent consumer', stopped))
     checks.push(check('in-flight requestScan rejects with CodeHealthStoppedError on unload (not a hang)', slow?.event === 'service-slow-error' && slow.code === 'ROUNDTABLE_STOPPED', slow))
 
+    // Same settle as the lifecycle unload cycles: a patch rewrite that lands while DSH is still
+    // applying the previous live reload was observed to be missed on Linux CI (run 36116282617).
+    await sleep(2_000)
     const restartAt = Date.now()
     writeUserPatch(pluginConfigPatch(root))
-    const again = await dsh.waitFor(() => events('service-available').length >= 2, 15_000)
+    const again = await dsh.waitFor(() => events('service-available').length >= 2, 30_000)
     metrics.reloadToConsumerMs = again ? Date.now() - restartAt : undefined
-    checks.push(check('re-enabling the provider restarts the consumer with a fresh service', again))
+    metrics.providerScansAfterReenable = dsh.scans(restartAt).map(line => line.text)
+    const reloadDiagnostics = dsh.lines.filter(line => line.t >= restartAt && /roundtable|dsh:|warning|error/i.test(line.text) && !/ watch /.test(line.text)).slice(0, 12).map(line => `${line.t - restartAt}ms ${line.stream} ${line.text}`)
+    checks.push(check('re-enabling the provider restarts the consumer with a fresh service', again, again ? undefined : reloadDiagnostics))
 
     const shutdown = await dsh.requestExit()
     metrics.shutdown = shutdown
